@@ -93,7 +93,11 @@ EXACT_MATCH = 1
 PARTIAL_MATCH = 2
 DIFFERENT = 3
 
+SIGNS=[',.:\'']
+
 def matches(word1, word2):
+    global SIGNS
+
     if (word1.upper()==word2.upper()):
         return EXACT_MATCH
     else:
@@ -110,7 +114,6 @@ def matches(word1, word2):
         #print(diff)
 
 
-
         if (len(dword1)==len(dword2)+1):
             if (i==len(dword2) and len(diff)==0):
                 return PARTIAL_MATCH
@@ -124,11 +127,15 @@ def matches(word1, word2):
 
 
         if (len(dword1)>len(dword2)):
+            if (len(dword2)==1 and len(diff)>0):
+                return DIFFERENT
             if (len(dword1)>len(dword2)+4):
                 return DIFFERENT
             if (len(diff)==1 and diff[0]==len(dword2)-1):
                 return PARTIAL_MATCH
         elif (len(dword2)>len(dword1) and len(dword1)>2):
+            if (len(dword1)==1 and len(diff)>0):
+                return DIFFERENT
             if (len(dword2)>len(dword1)+4):
                 return DIFFERENT
             if (len(diff)==1 and diff[0]==len(dword1)-1):
@@ -223,20 +230,18 @@ def processBlock(block):
                     #    print(k , v)
                     #print("----------")
                 #else:
-                    firstSync = syncs[0]
+                    sync = syncs[0]
 
                     for i in range(1, len(syncs)):
-                        sync = syncs[i]
-                        if (firstSync['findI']==sync['findI']+1 and firstSync['blockWordI']==sync['blockWordI']+1):
+                        if (syncs[i]['findI']<sync['findI']):
+                            sync = syncs[i]
+                            """
+                            print("Sync: --------")
+                            for k,v in sync.iteritems():
+                                print(k , v)
+                            print("----------")
+                            """
 
-                            #print("Sync: --------")
-                            #for k,v in sync.iteritems():
-                            #    print(k , v)
-                            #print("----------")
-                            sync = firstSync
-                            break
-                        else:
-                            firstSync = sync
                 processedWords = sync['findI'] + 1
                 iLog = iLog + "Apply sync, add this to new block:" + sync['collectContentPart'] + "\n"
                 resTextLine = resTextLine + sync['collectContentPart']
