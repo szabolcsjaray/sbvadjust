@@ -36,6 +36,8 @@ textarea#script {
 }
 h1 {
     text-align: center;
+    width:40%;
+    display: inline-block;
 }
 .block {
     border: 1px solid grey;
@@ -44,11 +46,11 @@ h1 {
 }
 textarea#origSBV {
     width: 45%;
-    height: 5%;
+    height: 7%;
 }
 textarea#resultSVB {
     width: 45%;
-    height: 5%;
+    height: 7%;
 }
 #svbfiles {
     width: 95%;
@@ -58,7 +60,7 @@ textarea#resultSVB {
 }
 #buttons {
     text-align: center;
-    width: 100px;
+    width: 45%;
     display: inline-block;
 }
 button {

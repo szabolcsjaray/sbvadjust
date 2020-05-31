@@ -11,6 +11,7 @@ var processedWords = 0;
 var SBVloaded = false;
 
 function loadOriginal() {
+    blocks = [];
     let original = el("origSBV").value;
     let arrayOfLines = original.match(/[^\r\n]+/g);
     let bi = 0;
@@ -38,16 +39,37 @@ function loadOriginal() {
     blocks.forEach( function(block) {
         newBlocks = newBlocks + "            <div class=\"block\">"+
         "Time: <p id=\"ot"+ind+"\">"+ block.time +"</p><br>" +
-        "<textarea id=\"ob"+ind+"\" class=\"blockText\" title=\"Original SBV block\">"+
+        "<textarea id=\"ob"+ind+"\" class=\"blockText\" title=\"Original SBV block\""+
+        "onchange=\"refreshBlocksFromScreen();\"" +
+        ">"+
         block.text+
         "</textarea>"+
-        "<textarea id=\"rb"+ind+"\" class=\"blockText\" title=\"Result SBV block\"></textarea>" +
+        "<textarea id=\"rb"+ind+"\" class=\"blockText\" title=\"Result SBV block\""+
+        "onchange=\"refreshResultSVB();\"" +
+        "></textarea>" +
         "</div>";
         ind++;
     });
     el("blocks").innerHTML = newBlocks;
     SBVloaded = true;
 
+}
+
+function refreshBlocksFromScreen() {
+    for(let i=0;i<blocks.length;i++) {
+        blocks[i].text=el("ob"+i).value.trim();
+    }
+}
+
+function refreshResultSVB() {
+    let resLine = "";
+    for(let i=0;i<blocks.length;i++) {
+        let line = el("rb"+i).value.trim();
+        if (line.length>0) {
+            resLine = resLine + blocks[i].time + "\n" + line + "\n\n";
+        }
+    }
+    el("resultSVB").value = resLine;
 }
 
 const EXACT_MATCH = 1;
@@ -170,7 +192,8 @@ function processBlock(block) {
                 //console.log("Try to find sync for this block word:" + blockWord)
                 let findI = processedWords-1;
                 let collectContentPart = "";
-                while (findI<processedWords+LOOK_FORWARD && (wmatches(scrcontent[findI], blockWord)==DIFFERENT)) {
+                while (findI<scrcontent.length && findI<processedWords+LOOK_FORWARD &&
+                        (wmatches(scrcontent[findI], blockWord)==DIFFERENT)) {
                     iLog = iLog +  "Try sync, no match:" + scrcontent[findI] + "!=" + blockWord + "\n";
                     //console.log("Try sync, no match:" + content[findI] + "!=" + blockWord)
                     collectContentPart = collectContentPart + separator + scrcontent[findI];
@@ -258,15 +281,15 @@ function processBlock(block) {
     }
     console.log("Used words    :" + usedWords);
     console.log("---------------------------------------------------");
-    newBlock.time = block.time;
-    newBlock.text = resTextLine;
+    newBlock.time = block.time.trim();
+    newBlock.text = resTextLine.trim();
     return newBlock;
 }
 
 function createResultSBV(resBlocks) {
     resLine = "";
     resBlocks.forEach(function(block) {
-        resLine = resLine + block.time + "\n" + block.text + "\n\n";
+        resLine = resLine + block.time.trim() + "\n" + block.text.trim() + "\n\n";
     });
     el("resultSVB").value = resLine;
 }
@@ -310,4 +333,24 @@ function processSBV() {
     }
     el("blocks").scrollTop = el("ob"+scrollTo).offsetTop - el("blocks").offsetTop;
     createResultSBV(resBlocks);
+}
+
+function saveResultSBV() {
+    let textToWrite = el("resultSVB").value;
+    let textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+    let downloadLink = document.createElement("a");
+    downloadLink.download = "result.svb";
+    downloadLink.innerHTML = "Download File";
+    if (window.webkitURL != null)
+    { //Chrome
+        downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+    }
+    else
+    { // Firefox
+        downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+    }
+
+    downloadLink.click();
 }

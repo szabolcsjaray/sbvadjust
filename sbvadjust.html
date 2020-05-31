@@ -17,11 +17,12 @@
 
 <body onload="init();">
     <h1>SBV adjust to text</h1>
+    <div id="buttons">
+        <button id="loadButton" onclick="loadOriginal();">Load subs</button>
+        <button id="processButton" onclick="processSBV();">Process SBV</button>
+        <button id="saveButton" onclick="saveResultSBV();">Save result</button>
+    </div>
     <div id="svbfiles">
-        <div id="buttons">
-            <button id="loadButton" onclick="loadOriginal();">Load subs</button>
-            <button id="processButton" onclick="processSBV();">Process SBV</button>
-        </div>
         <textarea id="origSBV"  title="Original SBV file">Auto generated SBV file content comes here.</textarea>
         <textarea id="resultSVB" title="Result SBV file" readonly>It will contain the result SVB.</textarea>
     </div>
