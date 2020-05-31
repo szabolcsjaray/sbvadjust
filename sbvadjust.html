@@ -18,13 +18,14 @@
 <body onload="init();">
     <h1>SBV adjust to text</h1>
     <div id="svbfiles">
-        <textarea id="origSBV"  title="Original SBV file"></textarea>
-        <textarea id="resultSVB" title="Result SBV file"></textarea>
+        <div id="buttons">
+            <button id="loadButton" onclick="loadOriginal();">Load subs</button>
+            <button id="processButton" onclick="processSBV();">Process SBV</button>
+        </div>
+        <textarea id="origSBV"  title="Original SBV file">Auto generated SBV file content comes here.</textarea>
+        <textarea id="resultSVB" title="Result SBV file" readonly>It will contain the result SVB.</textarea>
     </div>
-    <div id="buttons">
-        <button id="loadButton" onclick="loadOriginal();">Load subs</button>
-        <button id="processButton" onclick="processSBV();">Process SBV</button>
-    </div>
+
     <div id="container">
         <div id="blocks">
             <div class="block">
@@ -40,9 +41,7 @@
         </div>
         <div id="text">
             <textarea id="script" title="Original script">
-            gdskjfgkjsdag f dkjsa fkj gakjfgkjsdgakfjg kjg fkjas gfkj gsdkaj
-            gfkjg kjsdagh fkjg sadkjf <p style="background-color: blue;">gkjg</p>p> dxkjsfg ksjdag fkjg sdakjhg kjfg sdkja gfkjhg
-            jkhdslfh dlfh dh fdhj kh flsdh alkfh lk hlkhj dfsh alk hlf hdaslf h
+                The original script of the video comes here.
             </textarea>
         </div>
     </div>

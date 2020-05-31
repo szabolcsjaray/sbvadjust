@@ -6,18 +6,24 @@ textarea {
     display: flex;
     width: 97%;
     margin: auto;
+    overflow: hidden;
+    height: 600px;
 }
 #blocks {
     margin: 5px;
     padding: 5px;
     border: 1px solid grey;
     width: 47%;
+    height: 70%;
+    overflow: scroll;
 }
 #text {
     margin: 5px;
     padding: 5px;
     border: 1px solid grey;
     width: 47%;
+    overflow: hidden;
+    height: 70%;
 }
 textarea.blockText {
     background-color: blanchedalmond;
@@ -48,17 +54,21 @@ textarea#resultSVB {
     width: 95%;
     margin: auto;
     position:relative;
+    text-align: center;
 }
 #buttons {
-    width: 100%;
     text-align: center;
-    margin: auto;
+    width: 100px;
+    display: inline-block;
 }
 button {
     background-color: darkseagreen;
-
+    margin-bottom: 5px;
 }
 
 p {
     display: inline;
+}
+body {
+    overflow: hidden;
 }
