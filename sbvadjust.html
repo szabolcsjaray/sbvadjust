@@ -1,0 +1,49 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SVBadjust</title>
+    <meta name="description" content="SVB adjust">
+    <meta name="author" content="Szabolcs Járay">
+
+    <link rel="stylesheet" href="css/styles.css?v=1.0">
+    <!--script src="js/local.js"></script>
+    <script src="js/units.js"></script>
+    <script src="js/bintree.js"></script>
+    <script src="js/exprtree.js"></script-->
+    <script src="js/main.js"></script>
+</head>
+
+<body onload="init();">
+    <h1>SBV adjust to text</h1>
+    <div id="svbfiles">
+        <textarea id="origSBV"  title="Original SBV file"></textarea>
+        <textarea id="resultSVB" title="Result SBV file"></textarea>
+    </div>
+    <div id="buttons">
+        <button id="loadButton" onclick="loadOriginal();">Load subs</button>
+        <button id="processButton" onclick="processSBV();">Process SBV</button>
+    </div>
+    <div id="container">
+        <div id="blocks">
+            <div class="block">
+                Time: <p id="ot1">00:00:00-11:21:01</p><br>
+                <textarea id="ob1" class="blockText" title="Original SBV block"></textarea>
+                <textarea class="blockText" title="Result SBV block"></textarea>
+            </div>
+            <div class="block">
+                Time: <p id="ot2">00:00:00-11:21:01</p><br>
+                <textarea id="ob2" class="blockText"></textarea>
+                <textarea class="blockText"></textarea>
+            </div>
+        </div>
+        <div id="text">
+            <textarea id="script" title="Original script">
+            gdskjfgkjsdag f dkjsa fkj gakjfgkjsdgakfjg kjg fkjas gfkj gsdkaj
+            gfkjg kjsdagh fkjg sadkjf <p style="background-color: blue;">gkjg</p>p> dxkjsfg ksjdag fkjg sdakjhg kjfg sdkja gfkjhg
+            jkhdslfh dlfh dh fdhj kh flsdh alkfh lk hlkhj dfsh alk hlf hdaslf h
+            </textarea>
+        </div>
+    </div>
+</body>

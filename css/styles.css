@@ -1,0 +1,64 @@
+textarea {
+    resize: none;
+    background-color: blanchedalmond;
+}
+#container {
+    display: flex;
+    width: 97%;
+    margin: auto;
+}
+#blocks {
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid grey;
+    width: 47%;
+}
+#text {
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid grey;
+    width: 47%;
+}
+textarea.blockText {
+    background-color: blanchedalmond;
+    width: 47%;
+}
+textarea#script {
+    width: 98%;
+    height: 90%;
+    margin: auto;
+}
+h1 {
+    text-align: center;
+}
+.block {
+    border: 1px solid grey;
+    margin: 2px;
+    padding: 2px;
+}
+textarea#origSBV {
+    width: 45%;
+    height: 5%;
+}
+textarea#resultSVB {
+    width: 45%;
+    height: 5%;
+}
+#svbfiles {
+    width: 95%;
+    margin: auto;
+    position:relative;
+}
+#buttons {
+    width: 100%;
+    text-align: center;
+    margin: auto;
+}
+button {
+    background-color: darkseagreen;
+
+}
+
+p {
+    display: inline;
+}
