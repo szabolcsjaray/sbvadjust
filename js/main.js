@@ -37,14 +37,14 @@ function loadOriginal() {
     let newBlocks = "";
     let ind = 0;
     blocks.forEach( function(block) {
-        newBlocks = newBlocks + "            <div class=\"block\">"+
+        newBlocks = newBlocks + "            <div class=\"block\" id=\"b"+ind+"\">"+
         "Time: <p id=\"ot"+ind+"\">"+ block.time +"</p><br>" +
         "<textarea id=\"ob"+ind+"\" class=\"blockText\" title=\"Original SBV block\""+
         "onchange=\"refreshBlocksFromScreen();\"" +
         ">"+
         block.text+
         "</textarea>"+
-        "<textarea id=\"rb"+ind+"\" class=\"blockText\" title=\"Result SBV block\""+
+        "<textarea id=\"rb"+ind+"\" class=\"blockText resultBlock\" title=\"Result SBV block\""+
         "onchange=\"refreshResultSVB();\"" +
         "></textarea>" +
         "</div>";
@@ -327,6 +327,23 @@ function processSBV() {
 
     for(bi=0;bi<resBlocks.length;bi++) {
         el("rb"+bi).value = resBlocks[bi].text;
+        let wordNoOrig = blocks[bi].text.split(' ').length;
+        let wordNoRes = resBlocks[bi].text.split(' ').length;
+        let wordNoDiff = Marh.abs(wordNoOrig-wordNoRes);
+        if (wordNoDiff>0) {
+            if (wordNoDiff<=2) {
+                el("b"+bi).style.borderRight="3px solid orange";
+            } else {
+                el("b"+bi).style.borderRight="3px solid red";
+            }
+        } else {
+            el("b"+bi).style.borderRight="3px solid green";
+        }
+        el("rb"+bi).style.backgroundColor = "blanchedalmond";
+    }
+    for(let i=resBlocks.length;i<blocks.length;i++) {
+        el("rb"+i).style.backgroundColor = "";
+        el("b"+i).style.borderRight="3px solid red";
     }
     if (scrollTo==-1) {
         scrollTo = block.length;

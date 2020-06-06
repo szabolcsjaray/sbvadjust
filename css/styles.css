@@ -29,6 +29,9 @@ textarea.blockText {
     background-color: blanchedalmond;
     width: 47%;
 }
+textarea.resultBlock {
+    background-color: white;
+}
 textarea#script {
     width: 98%;
     height: 90%;
