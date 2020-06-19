@@ -1,4 +1,6 @@
 function init() {
+    console.log(getRidOffMarks("Iti!?;"));
+    console.log(getRidOffMarks("Itiner"));
     //alert("yo");
 }
 function el(id) {
@@ -77,15 +79,26 @@ const PARTIAL_MATCH = 2;
 const DIFFERENT = 3;
 const LOOK_FORWARD = 10;
 const SIGNS=[',.:\''];
+const NUMBERS=['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE'];
+const MARKS="?!.:,;";
 
-function wmatches(word1, word2) {
+function getRidOffMarks(str) {
+    i = str.length-1;
+    while (i>0 && MARKS.includes(str[i])) {
+        i--;
+    }
+    return str.substr(0,i+1);
+}
 
-    if (word1.toUpperCase()==word2.toUpperCase()) {
+function wmatches(srcWord, blockWord) {
+    let dword1 = srcWord.toUpperCase();
+    let dword2 = blockWord.toUpperCase();
+    if (dword1==dword2) {
+        return EXACT_MATCH;
+    } else if (NUMBERS.indexOf(dword1)!=-1 && ""+NUMBERS.indexOf(dword1)==dword2) {
         return EXACT_MATCH;
     } else {
-        let dword1 = word1.toUpperCase();
         let dl1 = dword1.length;
-        let dword2 = word2.toUpperCase();
         let dl2 = dword2.length;
         let i = 0;
         let diff = [];
@@ -145,6 +158,12 @@ function wmatches(word1, word2) {
             return PARTIAL_MATCH;
         }
 
+        dword1 = getRidOffMarks(dword1);
+        dword2 = getRidOffMarks(dword2);
+        if (dword1==dword2) {
+            return PARTIAL_MATCH;
+        }
+
         return DIFFERENT;
     }
 }
@@ -164,6 +183,9 @@ function processBlock(block) {
         if (processedWords>=scrcontent.length) {
             newBlock.last = true;
             break;
+        }
+        while (processedWords<scrcontent.length-1 && scrcontent[processedWords].length==0) {
+            processedWords++;
         }
         let nextWord = scrcontent[processedWords];
         processedWords++;
@@ -323,30 +345,32 @@ function processSBV() {
             alert("Whole script is processed!");
             break;
         }
-    }
-
-    for(bi=0;bi<resBlocks.length;bi++) {
-        el("rb"+bi).value = resBlocks[bi].text;
+	  el("rb"+bi).value = resBlocks[bi].text;
         let wordNoOrig = blocks[bi].text.split(' ').length;
         let wordNoRes = resBlocks[bi].text.split(' ').length;
-        let wordNoDiff = Marh.abs(wordNoOrig-wordNoRes);
+        let wordNoDiff = Math.abs(wordNoOrig-wordNoRes);
         if (wordNoDiff>0) {
             if (wordNoDiff<=2) {
-                el("b"+bi).style.borderRight="3px solid orange";
+                el("b"+bi).style.borderRight="4px solid orange";
             } else {
-                el("b"+bi).style.borderRight="3px solid red";
+                el("b"+bi).style.borderRight="5px solid red";
             }
         } else {
-            el("b"+bi).style.borderRight="3px solid green";
+            el("b"+bi).style.borderRight="4px solid green";
         }
         el("rb"+bi).style.backgroundColor = "blanchedalmond";
     }
-    for(let i=resBlocks.length;i<blocks.length;i++) {
+
+
+    for(let i=resBlocks.length-1;i<blocks.length;i++) {
         el("rb"+i).style.backgroundColor = "";
-        el("b"+i).style.borderRight="3px solid red";
+        el("b"+i).style.borderRight="5px solid red";
     }
     if (scrollTo==-1) {
         scrollTo = block.length;
+    }
+    if (scrollTo>0) {
+        scrollTo--;
     }
     el("blocks").scrollTop = el("ob"+scrollTo).offsetTop - el("blocks").offsetTop;
     createResultSBV(resBlocks);
