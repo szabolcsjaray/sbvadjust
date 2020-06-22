@@ -212,7 +212,7 @@ function selectInTextarea(tarea, startPos, endPos, scrollTo = false) {
     }
 }
 
-function processBlock(block) {
+function processBlock(block, nextBlock) {
     let resTextLine = "";
     let separator = "";
     console.log("Processing block: " + block.time);
@@ -382,7 +382,8 @@ function processSBV() {
     let bi = 0;
     let scrollTo = -1;
     for(bi=0;bi<blocks.length;bi++) {
-        resBlocks[bi] = processBlock(blocks[bi]);
+        resBlocks[bi] = processBlock(blocks[bi],
+                (bi+1<blocks.length ? blocks[bi+1] : null));
         if (resBlocks[bi].lostSync) {
             scrollTo = bi;
             console.log("Lost synchronization.. Correct sources, and rerun process!");
