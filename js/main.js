@@ -1,8 +1,29 @@
 function init() {
-    console.log(getRidOffMarks("Iti!?;"));
-    console.log(getRidOffMarks("Itiner"));
-    console.log(wmatches("7", "seven"));
+    let url = new URL(window.location.href);
+    if (url.searchParams.get('test')) {
+        console.log(getRidOffMarks("Iti!?;"));
+        console.log(getRidOffMarks("Itiner"));
+        console.log(wmatches("7", "seven"));
+        block0 = { "text": "try to parse these words", "index": 0, 'time': "0:0"};
+        block1 = { "text": "and continue here. Some more sentences come here to make sure..", 'index': 1, 'time': "0:1"};
+        processedWords = 0;
+        testScr = "Try to parse these w-ords and continue here. Some more sentences come here to make sure..";
+        scrcontent = testScr.split(' ');
+        let str = "TESTING...  \n\n"+testScr+"\n----------------------\n"+ blockToStr(block0)+"\n"+blockToStr(block1)+"\n";
+        el("script").value = str;
+        res = processBlock(block0, block1);
+        el("script").value = el("script").value  +"\nresult block:\n"+ blockToStr(res);
+        alert(res.text);
+    }
     //alert("yo");
+}
+
+function blockToStr(block) {
+    return "time: " + block.time +
+        "\ntext: " + block.text +
+        "\nnextText: "+((typeof block.nextText=='undefined')? "":block.nextText) +
+        "\nnextI: "+block.nextI+
+        "\n*********************************************************";
 }
 function el(id) {
     return document.getElementById(id);
@@ -212,16 +233,27 @@ function selectInTextarea(tarea, startPos, endPos, scrollTo = false) {
     }
 }
 
+function logCollect(logStr, newLogStr, toConsole) {
+    logStr = logStr + newLogStr;
+    if (toConsole) {
+        console.log(newLogStr);
+    }
+    return logStr;
+}
+
 function processBlock(block, nextBlock) {
     let resTextLine = "";
     let separator = "";
     console.log("Processing block: " + block.time);
     let blockWords = block.text.split(' ');
+    let twoBlockWords = block.text.split(' ').concat(nextBlock.text.split(' '));
     let blockWordI = 0;
     let startWord = processedWords;
     let iLog = "Processing block: " + block.time + "\n";
     let newBlock = { 'last': false, 'lostSync' : false};
     let startPos = 0;
+    let collectedNextContentPart = "";
+    let nextI = -1;
     while (blockWordI<blockWords.length) {
         let blockWord = blockWords[blockWordI];
 
@@ -235,19 +267,19 @@ function processBlock(block, nextBlock) {
         }
         let nextWord = scrcontent[processedWords];
         processedWords++;
-        iLog = iLog + "Check block|content: " + blockWord + "|" + nextWord + "\n";
+        iLog = logCollect(iLog, "Check block|content: " + blockWord + "|" + nextWord + "\n", false);
         //console.log("Check block|content: " + blockWord + "|" + nextWord)
         match = wmatches(nextWord, blockWord);
         if (match==EXACT_MATCH) {
             resTextLine = resTextLine + separator + nextWord;
-            iLog = iLog + "Exact match (block|content): " + blockWord + "|" + nextWord + "\n";
+            iLog = logCollect(iLog, "Exact match (block|content): " + blockWord + "|" + nextWord + "\n", false);
             //console.log("Exact match (block|content): " + blockWord + "|" + nextWord)
         } else if (match==PARTIAL_MATCH) {
-            iLog = iLog + "Partial match (block|content): " + blockWord + "|" + nextWord + "\n";
+            iLog = logCollect(iLog, "Partial match (block|content): " + blockWord + "|" + nextWord + "\n", false);
             //console.log("Partial match (block|content): " + blockWord + "|" + nextWord)
             resTextLine = resTextLine + separator + nextWord;
         } else {
-            iLog = iLog + "Problem here (block|content):" + blockWord + "|" + nextWord + "\n";
+            iLog = logCollect(iLog, "Problem here (block|content):" + blockWord + "|" + nextWord + "\n", false);
             //console.log("Problem here (block|content):" + blockWord + "|" + nextWord)
 
             let syncs = [];
@@ -255,29 +287,42 @@ function processBlock(block, nextBlock) {
             let badBlockWord = blockWord;
             let blockWordProblemI = blockWordI;
             let foundSync = false;
-            while (foundSync==false && blockWordI<blockWords.length && blockWordI-blockWordProblemI<LOOK_FORWARD) {
-                blockWord = blockWords[blockWordI];
-                iLog = iLog + "Try to find sync for this block word:" + blockWord +"\n";
+            while (foundSync==false && blockWordI<twoBlockWords.length && blockWordI-blockWordProblemI<LOOK_FORWARD) {
+                blockWord = twoBlockWords[blockWordI];
+                iLog = logCollect(iLog, "Try to find sync for this block word:" + blockWord +"\n", false);
                 //console.log("Try to find sync for this block word:" + blockWord)
                 let findI = processedWords-1;
                 let collectContentPart = "";
+                collectedNextContentPart = "";
                 while (findI<scrcontent.length && findI<processedWords+LOOK_FORWARD &&
                         (wmatches(scrcontent[findI], blockWord)==DIFFERENT)) {
-                    iLog = iLog +  "Try sync, no match:" + scrcontent[findI] + "!=" + blockWord + "\n";
+                    iLog = logCollect(iLog,  "Try sync, no match:" + scrcontent[findI] + "!=" + blockWord + "\n", false);
                     //console.log("Try sync, no match:" + content[findI] + "!=" + blockWord)
-                    collectContentPart = collectContentPart + separator + scrcontent[findI];
+                    if (findI-processedWords<blockWords.length-blockWordProblemI-1) {
+                        collectContentPart = collectContentPart + separator + scrcontent[findI];
+                    } else {
+                        collectedNextContentPart = collectedNextContentPart + separator + scrcontent[findI];
+                    }
                     separator = " ";
                     findI = findI + 1;
                 }
                 if (findI>=processedWords+LOOK_FORWARD) {
                     blockWordI = blockWordI + 1;
-                    iLog = iLog + "Step blockWordI"  + "\n";
+                    iLog = logCollect(iLog, "Step blockWordI"  + "\n", false);
                     //console.log("Step blockWordI")
                 } else {
-                    iLog = iLog + "Found sync: " + scrcontent[findI]  + "==" + blockWord  + "\n";
+                    iLog = logCollect(iLog, "Found sync: " + scrcontent[findI]  + "==" + blockWord  + "\n", false);
                     //console.log("Found sync: " + scrcontent[findI]  + "==" + blockWord)
-                    collectContentPart = collectContentPart + separator + scrcontent[findI];
-                    sync = {'findI': findI, 'blockWordI' : blockWordI, 'collectContentPart': collectContentPart};
+
+                    if (findI-processedWords<blockWords.length-blockWordProblemI-1) {
+                        collectContentPart = collectContentPart + separator + scrcontent[findI];
+                    } else {
+                        collectedNextContentPart = collectedNextContentPart + separator + scrcontent[findI];
+                    }
+                    sync = {'findI': findI,
+                            'blockWordI' : blockWordI,
+                            'collectContentPart': collectContentPart,
+                            'collectedNextContentPart' : collectedNextContentPart};
                     syncs.push(sync);
                     blockWordI = blockWordI + 1;
                     startPos = startPos + blockWord.length + 1;
@@ -324,12 +369,18 @@ function processBlock(block, nextBlock) {
                     }
                 }
                 processedWords = sync['findI'] + 1;
-                iLog = iLog + "Apply sync, add this to new block:" + sync['collectContentPart'] + "\n";
-                resTextLine = resTextLine + sync['collectContentPart'];
+                iLog = logCollect(iLog, "Apply sync, add this to new block:" + sync['collectContentPart'] + "\n", false);
                 blockWordI = sync['blockWordI'];
-                iLog = iLog + "result so far:" + resTextLine + "\n";
-                if (blockWordI<blockWords.length-1) {
-                    iLog = iLog + "next block word:" + blockWords[blockWordI+1] + "\n";
+                if (blockWordI>=blockWords.length) {
+                    nextI = blockWordI - blockWords.length;
+                    alert("over the block! i:" + blockWordI + "\n collected next part:" + sync['collectedNextContentPart'] +
+                        "\n nextI:" + nextI);
+                    collectedNextContentPart = sync['collectedNextContentPart'];
+                }
+                resTextLine = resTextLine + sync['collectContentPart'];
+                iLog = logCollect(iLog, "result so far:" + resTextLine + "\n", false);
+                if (blockWordI<twoBlockWords.length-1) {
+                    iLog = logCollect(iLog, "next block word:" + blockWords[blockWordI+1] + "\n", false);
                 }
                 //logf.write(iLog.encode('utf-8') + "\n")
                 //logf.write("\n\n")
@@ -354,6 +405,8 @@ function processBlock(block, nextBlock) {
     console.log("---------------------------------------------------");
     newBlock.time = block.time.trim();
     newBlock.text = resTextLine.trim();
+    newBlock.nextText = collectedNextContentPart;
+    newBlock.nextI = nextI;
     return newBlock;
 }
 
