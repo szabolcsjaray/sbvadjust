@@ -5,15 +5,23 @@ function init() {
         console.log(getRidOffMarks("Itiner"));
         console.log(wmatches("7", "seven"));
         block0 = { "text": "try to parse these words", "index": 0, 'time': "0:0"};
-        block1 = { "text": "and continue here. Some more sentences come here to make sure..", 'index': 1, 'time': "0:1"};
+        block1 = { "text": "ammd coontinue here. Some more sentences come here to make sure..", 'index': 1, 'time': "0:1"};
+        block2 = { "text": "Third example section of the what we want.", 'index': 2, 'time': "0:2"};
+
         processedWords = 0;
-        testScr = "Try to parse these w-ords and continue here. Some more sentences come here to make sure..";
+        testScr = "Try to parse these w-ords and continue here. "+
+                "Some more sentences come here to make sure.. "+
+                "Third example section of the what we want.";
         scrcontent = testScr.split(' ');
         let str = "TESTING...  \n\n"+testScr+"\n----------------------\n"+ blockToStr(block0)+"\n"+blockToStr(block1)+"\n";
         el("script").value = str;
-        res = processBlock(block0, block1);
-        el("script").value = el("script").value  +"\nresult block:\n"+ blockToStr(res);
-        alert(res.text);
+        let res = processBlock(block0, block1);
+        let res2 = processBlock(block1, block2, res);
+        let res3 = processBlock(block2, null, res2);
+        el("script").value = el("script").value  +"\nresult 1. block:\n"+ blockToStr(res) +
+            "\nresult 2. block:\n" + blockToStr(res2) +
+            "\nresult 3. block:\n" + blockToStr(res3);
+        //alert(res.text);
     }
     //alert("yo");
 }
@@ -241,16 +249,22 @@ function logCollect(logStr, newLogStr, toConsole) {
     return logStr;
 }
 
-function processBlock(block, nextBlock) {
+function processBlock(block, nextBlock, prevResBlock = null) {
     let resTextLine = "";
     let separator = "";
     console.log("Processing block: " + block.time);
     let blockWords = block.text.split(' ');
-    let twoBlockWords = block.text.split(' ').concat(nextBlock.text.split(' '));
+    let twoBlockWords = (nextBlock!=null ? block.text.split(' ').concat(nextBlock.text.split(' ')) : block.text.split(' '));
     let blockWordI = 0;
     let startWord = processedWords;
     let iLog = "Processing block: " + block.time + "\n";
-    let newBlock = { 'last': false, 'lostSync' : false};
+    let newBlock = { 'last': false, 'lostSync' : false, nextText : ''};
+    if (prevResBlock!=null) {
+        newBlock.text = prevResBlock.nextText + (prevResBlock.nextText.length>0 ? " " : "");
+        blockWordI = prevResBlock.nextI + 1;
+    } else {
+        newBlock.text = "";
+    }
     let startPos = 0;
     let collectedNextContentPart = "";
     let nextI = -1;
@@ -345,6 +359,8 @@ function processBlock(block, nextBlock) {
                 }
                 console.log("Content from:" + contentFrom);
                 newBlock.lostSync = true;
+                alert("Sync lost. Bad block word:" + badBlockWord);
+                el("stopped").innerHTML = badBlockWord;
                 return newBlock; // !!!!!!
             } else {
                 //console.log("Syncs num: " , len(syncs))
@@ -373,9 +389,12 @@ function processBlock(block, nextBlock) {
                 blockWordI = sync['blockWordI'];
                 if (blockWordI>=blockWords.length) {
                     nextI = blockWordI - blockWords.length;
-                    alert("over the block! i:" + blockWordI + "\n collected next part:" + sync['collectedNextContentPart'] +
-                        "\n nextI:" + nextI);
+                    //alert("over the block! i:" + blockWordI + "\n collected next part:" + sync['collectedNextContentPart'] +
+                    //    "\n nextI:" + nextI);
                     collectedNextContentPart = sync['collectedNextContentPart'];
+                    /*newBlock.lostSync = true;
+                    alert("Sync lost. Bad block word:" + badBlockWord);
+                    return newBlock;*/
                 }
                 resTextLine = resTextLine + sync['collectContentPart'];
                 iLog = logCollect(iLog, "result so far:" + resTextLine + "\n", false);
@@ -404,7 +423,7 @@ function processBlock(block, nextBlock) {
     console.log("Used words    :" + usedWords);
     console.log("---------------------------------------------------");
     newBlock.time = block.time.trim();
-    newBlock.text = resTextLine.trim();
+    newBlock.text = newBlock.text + resTextLine.trim();
     newBlock.nextText = collectedNextContentPart;
     newBlock.nextI = nextI;
     return newBlock;
@@ -455,11 +474,14 @@ function processSBV() {
         if (wordNoDiff>0) {
             if (wordNoDiff<=2) {
                 el("b"+bi).style.borderRight="4px solid orange";
+                blocks[bi].mark = 'orange';
             } else {
                 el("b"+bi).style.borderRight="5px solid red";
+                blocks[bi].mark = 'red';
             }
         } else {
             el("b"+bi).style.borderRight="4px solid green";
+            blocks[bi].mark = 'green';
         }
         el("rb"+bi).style.backgroundColor = "blanchedalmond";
     }
@@ -497,4 +519,24 @@ function saveResultSBV() {
     }
 
     downloadLink.click();
+}
+
+function isBlockRed(bi) {
+    return 'mark' in blocks[bi] && blocks[bi].mark=="red";
+}
+
+function changeOnlyRed() {
+    if (el("onlyRed").checked) {
+        for(let bi=0;bi<blocks.length;bi++) {
+            if ( !isBlockRed(bi) &&
+                (bi==0 || !isBlockRed(bi-1)) &&
+                (bi>=blocks.length-1 || !isBlockRed(bi+1)) ) {
+               el("b"+bi).style.display = "none";
+            }
+        }
+    } else {
+        for(let bi=0;bi<blocks.length;bi++) {
+             el("b"+bi).style.display = "block";
+        }
+    }
 }

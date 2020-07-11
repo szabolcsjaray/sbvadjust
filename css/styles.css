@@ -14,7 +14,7 @@ textarea {
     padding: 5px;
     border: 1px solid grey;
     width: 47%;
-    height: 70%;
+    height: 90%;
     overflow: scroll;
 }
 #text {
@@ -23,7 +23,7 @@ textarea {
     border: 1px solid grey;
     width: 47%;
     overflow: hidden;
-    height: 70%;
+    height: 90%;
 }
 textarea.blockText {
     background-color: blanchedalmond;
@@ -80,4 +80,7 @@ body {
 
 img.icon {
     cursor: pointer;
+}
+p#stopped {
+    font-weight: bold;
 }

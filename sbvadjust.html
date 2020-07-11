@@ -4,15 +4,12 @@
 <head>
     <meta charset="utf-8">
     <title>SVBadjust</title>
-    <meta name="description" content="SVB adjust">
+    <meta name="description" content="SBV adjust">
     <meta name="author" content="Szabolcs Járay">
 
     <link rel="stylesheet" href="css/styles.css?v=1.0">
-    <!--script src="js/local.js"></script>
-    <script src="js/units.js"></script>
-    <script src="js/bintree.js"></script>
-    <script src="js/exprtree.js"></script-->
     <script src="js/main.js"></script>
+    <script src="js/session.js?v=2"></script>
 </head>
 
 <body onload="init();">
@@ -20,7 +17,10 @@
     <div id="buttons">
         <button id="loadButton" onclick="loadOriginal();">Load subs</button>
         <button id="processButton" onclick="processSBV();">Process SBV</button>
-        <button id="saveButton" onclick="saveResultSBV();">Save result</button>
+        <button id="saveButton" onclick="saveResultSBV();">Save result SBV</button>
+        |&nbsp;
+        <button id="saveButton" onclick="sessionSave();">Session save</button>
+        <button id="saveButton" onclick="sessionLoad();">Session load</button>
     </div>
     <div id="svbfiles">
         <textarea id="origSBV"  title="Original SBV file">Auto generated SBV file content comes here.</textarea>
@@ -39,6 +39,7 @@
             <textarea id="script" title="Original script">
                 The original script of the video comes here.
             </textarea>
+            Stopped at this word in the block: <p id="stopped"></p> | Only red blocks: <input type="checkbox" id="onlyRed" onchange="changeOnlyRed();">
         </div>
     </div>
 </body>
