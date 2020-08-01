@@ -72,7 +72,7 @@ function loadOriginal() {
     let ind = 0;
     blocks.forEach( function(block) {
         newBlocks = newBlocks + "            <div class=\"block\" id=\"b"+ind+"\">"+
-        "Time: <p id=\"ot"+ind+"\">"+ block.time +"</p><br>" +
+        (ind+1) + ". Time: <p id=\"ot"+ind+"\">"+ block.time +"</p><br>" +
         "<textarea id=\"ob"+ind+"\" class=\"blockText\" title=\"Original SBV block\""+
         "onchange=\"refreshBlocksFromScreen();\"" +
         ">"+
@@ -262,6 +262,7 @@ function processBlock(block, nextBlock, prevResBlock = null) {
     if (prevResBlock!=null) {
         newBlock.text = prevResBlock.nextText + (prevResBlock.nextText.length>0 ? " " : "");
         blockWordI = prevResBlock.nextI + 1;
+        console.log("Transferred text: "+ newBlock.text + "\n blockWordI = " + (prevResBlock.nextI + 1))
     } else {
         newBlock.text = "";
     }
@@ -281,6 +282,9 @@ function processBlock(block, nextBlock, prevResBlock = null) {
         }
         let nextWord = scrcontent[processedWords];
         processedWords++;
+        collectedNextContentPart = "";
+        nextI = -1;
+
         iLog = logCollect(iLog, "Check block|content: " + blockWord + "|" + nextWord + "\n", false);
         //console.log("Check block|content: " + blockWord + "|" + nextWord)
         match = wmatches(nextWord, blockWord);
@@ -455,7 +459,12 @@ function processSBV() {
     let scrollTo = -1;
     for(bi=0;bi<blocks.length;bi++) {
         resBlocks[bi] = processBlock(blocks[bi],
-                (bi+1<blocks.length ? blocks[bi+1] : null));
+            (bi+1<blocks.length ? blocks[bi+1] : null),
+            (bi>0 ? resBlocks[bi-1] : null));
+        if (resBlocks[bi].nextText.length>0) {
+            console.log("This is transferred: " + resBlocks[bi].nextText);
+            console.log("blcokWordI in next block: " +resBlocks[bi].nextI);
+        }
         if (resBlocks[bi].lostSync) {
             scrollTo = bi;
             console.log("Lost synchronization.. Correct sources, and rerun process!");
