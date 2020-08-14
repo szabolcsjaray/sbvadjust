@@ -28,6 +28,7 @@ textarea {
 textarea.blockText {
     background-color: blanchedalmond;
     width: 47%;
+    height: 63px;
 }
 textarea.resultBlock {
     background-color: white;

@@ -1,3 +1,12 @@
+var blocks = [];
+var scrcontent;
+var processedWords = 0;
+var SBVloaded = false;
+
+function printTestStr(str) {
+    el("script").value = el("script").value + str;
+}
+
 function init() {
     let url = new URL(window.location.href);
     if (url.searchParams.get('test')) {
@@ -5,22 +14,27 @@ function init() {
         console.log(getRidOffMarks("Itiner"));
         console.log(wmatches("7", "seven"));
         block0 = { "text": "try to parse these words", "index": 0, 'time': "0:0"};
-        block1 = { "text": "ammd coontinue here. Some more sentences come here to make sure..", 'index': 1, 'time': "0:1"};
+        block1 = { "text": "ammd coontinue here. Some more sen-tences come here to make sure..", 'index': 1, 'time': "0:1"};
         block2 = { "text": "Third example section of the what we want.", 'index': 2, 'time': "0:2"};
 
         processedWords = 0;
-        testScr = "Try to parse these w-ords and continue here. "+
+        testScr = "Try to parse   these  w-ords   and  continue here. "+
                 "Some more sentences come here to make sure.. "+
                 "Third example section of the what we want.";
+        el("script").value = "";
         scrcontent = testScr.split(' ');
-        let str = "TESTING...  \n\n"+testScr+"\n----------------------\n"+ blockToStr(block0)+"\n"+blockToStr(block1)+"\n";
-        el("script").value = str;
-        let res = processBlock(block0, block1);
-        let res2 = processBlock(block1, block2, res);
-        let res3 = processBlock(block2, null, res2);
-        el("script").value = el("script").value  +"\nresult 1. block:\n"+ blockToStr(res) +
+        printTestStr("\n\nSrccontent length before:" + scrcontent.length + ", 1." + scrcontent[0] + " 24.:" + scrcontent[23]);
+        filterEmptySrcWords();
+        printTestStr("\n\nSrccontent length after filter:" + scrcontent.length + ", 1." + scrcontent[0] + " 24.:" + scrcontent[23]);
+        let str = "\nTESTING...  \n\n"+testScr+"\n----------------------\n"+ blockToStr(block0)+"\n"+blockToStr(block1)+"\n";
+        printTestStr(str);
+        let res = processBlock(block0, block1, null, true);
+        let res2 = processBlock(block1, block2, res, true);
+        let res3 = processBlock(block2, null, res2, true);
+        printTestStr("\nresult 1. block:\n"+ blockToStr(res) +
             "\nresult 2. block:\n" + blockToStr(res2) +
-            "\nresult 3. block:\n" + blockToStr(res3);
+            "\nresult 3. block:\n" + blockToStr(res3));
+
         //alert(res.text);
     }
     //alert("yo");
@@ -37,10 +51,7 @@ function el(id) {
     return document.getElementById(id);
 }
 
-var blocks = [];
-var scrcontent;
-var processedWords = 0;
-var SBVloaded = false;
+
 
 function loadOriginal() {
     blocks = [];
@@ -248,8 +259,79 @@ function logCollect(logStr, newLogStr, toConsole) {
     }
     return logStr;
 }
+const NEXTWORD_IS_BW_PLUS_ABW = 20;
+const NEXTWORD_IS_BW_HYPHEN_ABW = 21;
+const BLOCKWORD_IS_NW_PLUS_ANW = 22;
+const BLOCKWORD_IS_NW_HYPHEN_ANW = 23;
+const SAME_WITH_HYPHEN = 24;
 
-function processBlock(block, nextBlock, prevResBlock = null) {
+function sameWithAHyphenDiff(word1, word2) {
+    let i1 = 0;
+    let i2 = 0;
+    let hyphen = false;
+    while (i1<word1.length && i2<word2.length) {
+        if (word1[i1]=='-') {
+            if (hyphen) {
+                return false; // too much hyphen
+            } else {
+                i1++;
+                hyphen = true;
+            }
+        }
+        if (word2[i2]=='-') {
+            if (hyphen) {
+                return false; // too much hyphen
+            } else {
+                i2++;
+                hyphen = true;
+            }
+        }
+        if (word1[i1]!=word2[i2]) {
+            return false; // not the same letters
+        }
+        i1++;
+        i2++;
+    }
+    return (i1==word1.length && i2==word2.length);
+}
+
+function checkHyphenAndAttachedWords(nextWord, afterNextWord, blockWord, afterBlockWord) {
+    let nextWordU = nextWord.toUpperCase();
+    let afterNextWordU = (afterNextWord!=null ? afterNextWord.toUpperCase() : null);
+    let blockWordU = blockWord.toUpperCase();
+    let afterBlockWordU = afterBlockWord.toUpperCase();
+    if (nextWordU.startsWith(blockWordU)) {
+        if ((nextWordU.length==blockWordU.length + afterBlockWordU.length) &&
+            (nextWordU.lastIndexOf(afterBlockWordU)==blockWordU.length)) {
+                return NEXTWORD_IS_BW_PLUS_ABW;
+            }
+        if ((nextWordU.length==blockWordU.length + afterBlockWordU.length + 1) &&
+            (nextWordU.lastIndexOf(afterBlockWordU)==blockWordU.length+1) &&
+            nextWordU[blockWordU.length]=='-') {
+            return NEXTWORD_IS_BW_HYPHEN_ABW;
+        }
+    }
+    if (afterNextWord!=null && blockWordU.startsWith(nextWordU)) {
+        if ((blockWordU.length==nextWordU.length + afterNextWordU.length) &&
+            (blockWordU.lastIndexOf(afterNextWordU)==nextWordU.length)) {
+                return BLOCKWORD_IS_NW_PLUS_ANW;
+            }
+        if ((blockWordU.length==nextWordU.length + afterNextWordU.length + 1) &&
+        (blockWordU.lastIndexOf(afterNextWordU)==nextWordU.length + 1) &&
+            blockWordU[nextWordU.length]=='-') {
+            return BLOCKWORD_IS_NW_HYPHEN_ANW;
+        }
+    }
+    if (nextWordU.length==blockWordU.length+1 ||
+        nextWordU.length==blockWordU.length-1) {
+        if (sameWithAHyphenDiff(nextWordU, blockWordU)) {
+            return SAME_WITH_HYPHEN;
+        }
+    }
+    return DIFFERENT;
+}
+
+function processBlock(block, nextBlock, prevResBlock = null, debugOn = false) {
     let resTextLine = "";
     let separator = "";
     console.log("Processing block: " + block.time);
@@ -285,129 +367,151 @@ function processBlock(block, nextBlock, prevResBlock = null) {
         collectedNextContentPart = "";
         nextI = -1;
 
-        iLog = logCollect(iLog, "Check block|content: " + blockWord + "|" + nextWord + "\n", false);
+        iLog = logCollect(iLog, "Check block|content: " + blockWord + "|" + nextWord + "\n", debugOn);
         //console.log("Check block|content: " + blockWord + "|" + nextWord)
         match = wmatches(nextWord, blockWord);
         if (match==EXACT_MATCH) {
             resTextLine = resTextLine + separator + nextWord;
-            iLog = logCollect(iLog, "Exact match (block|content): " + blockWord + "|" + nextWord + "\n", false);
+            iLog = logCollect(iLog, "Exact match (block|content): " + blockWord + "|" + nextWord + "\n", debugOn);
             //console.log("Exact match (block|content): " + blockWord + "|" + nextWord)
         } else if (match==PARTIAL_MATCH) {
-            iLog = logCollect(iLog, "Partial match (block|content): " + blockWord + "|" + nextWord + "\n", false);
+            iLog = logCollect(iLog, "Partial match (block|content): " + blockWord + "|" + nextWord + "\n", debugOn);
             //console.log("Partial match (block|content): " + blockWord + "|" + nextWord)
             resTextLine = resTextLine + separator + nextWord;
         } else {
-            iLog = logCollect(iLog, "Problem here (block|content):" + blockWord + "|" + nextWord + "\n", false);
-            //console.log("Problem here (block|content):" + blockWord + "|" + nextWord)
-
-            let syncs = [];
-            let startPosBadWord = startPos;
-            let badBlockWord = blockWord;
-            let blockWordProblemI = blockWordI;
-            let foundSync = false;
-            while (foundSync==false && blockWordI<twoBlockWords.length && blockWordI-blockWordProblemI<LOOK_FORWARD) {
-                blockWord = twoBlockWords[blockWordI];
-                iLog = logCollect(iLog, "Try to find sync for this block word:" + blockWord +"\n", false);
-                //console.log("Try to find sync for this block word:" + blockWord)
-                let findI = processedWords-1;
-                let collectContentPart = "";
-                collectedNextContentPart = "";
-                while (findI<scrcontent.length && findI<processedWords+LOOK_FORWARD &&
-                        (wmatches(scrcontent[findI], blockWord)==DIFFERENT)) {
-                    iLog = logCollect(iLog,  "Try sync, no match:" + scrcontent[findI] + "!=" + blockWord + "\n", false);
-                    //console.log("Try sync, no match:" + content[findI] + "!=" + blockWord)
-                    if (findI-processedWords<blockWords.length-blockWordProblemI-1) {
-                        collectContentPart = collectContentPart + separator + scrcontent[findI];
-                    } else {
-                        collectedNextContentPart = collectedNextContentPart + separator + scrcontent[findI];
-                    }
-                    separator = " ";
-                    findI = findI + 1;
-                }
-                if (findI>=processedWords+LOOK_FORWARD) {
-                    blockWordI = blockWordI + 1;
-                    iLog = logCollect(iLog, "Step blockWordI"  + "\n", false);
-                    //console.log("Step blockWordI")
-                } else {
-                    iLog = logCollect(iLog, "Found sync: " + scrcontent[findI]  + "==" + blockWord  + "\n", false);
-                    //console.log("Found sync: " + scrcontent[findI]  + "==" + blockWord)
-
-                    if (findI-processedWords<blockWords.length-blockWordProblemI-1) {
-                        collectContentPart = collectContentPart + separator + scrcontent[findI];
-                    } else {
-                        collectedNextContentPart = collectedNextContentPart + separator + scrcontent[findI];
-                    }
-                    sync = {'findI': findI,
-                            'blockWordI' : blockWordI,
-                            'collectContentPart': collectContentPart,
-                            'collectedNextContentPart' : collectedNextContentPart};
-                    syncs.push(sync);
-                    blockWordI = blockWordI + 1;
-                    startPos = startPos + blockWord.length + 1;
-                    //foundSync = True
-                }
-            }
-
-            if (syncs.length==0) {
-                console.log(iLog);
-                console.log("Not found sync till end of block or "+
-                    LOOK_FORWARD+" words, word:" + nextWord +
-                    ", block word:" + badBlockWord +". Block is:" + block['time']);
-                console.log("Old block:" + block['text']);
-                selectInTextarea( el("ob"+block.index), startPosBadWord, startPosBadWord+badBlockWord.length);
-                let i = processedWords;
-                contentFrom = "";
-                while (i<processedWords+10 && i<scrcontent.length) {
-                    contentFrom = contentFrom + scrcontent[i] + " ";
-                    i = i + 1;
-                }
-                console.log("Content from:" + contentFrom);
-                newBlock.lostSync = true;
-                alert("Sync lost. Bad block word:" + badBlockWord);
-                el("stopped").innerHTML = badBlockWord;
-                return newBlock; // !!!!!!
+            match = checkHyphenAndAttachedWords(nextWord,
+                (processedWords<scrcontent.length ? scrcontent[processedWords] : null),
+                blockWord,
+                twoBlockWords[blockWordI+1]);
+                /*const NEXTWORD_IS_BW_PLUS_ABW = 20;
+                const NEXTWORD_IS_BW_HYPHEN_ABW = 21;
+                const BLOCKWORD_IS_NW_PLUS_ANW = 22;
+                const BLOCKWORD_IS_NW_HYPHEN_ANW = 23;*/
+            if (match==NEXTWORD_IS_BW_PLUS_ABW || match==NEXTWORD_IS_BW_HYPHEN_ABW) {
+                iLog = logCollect(iLog, "Concatenated word (block|content): " + blockWord + twoBlockWords[blockWordI+1] + "|" + nextWord + "\n", debugOn);
+                resTextLine = resTextLine + separator + nextWord;
+                blockWordI++;
+            } else if (match==BLOCKWORD_IS_NW_HYPHEN_ANW || match==BLOCKWORD_IS_NW_PLUS_ANW) {
+                iLog = logCollect(iLog, "Concatenated word (block|content): " + blockWord + "|" + nextWord + scrcontent[processedWords] + "\n", debugOn);
+                resTextLine = resTextLine + separator + nextWord + separator + scrcontent[processedWords];
+                processedWords++;
+            } else if (match==SAME_WITH_HYPHEN) {
+                iLog = logCollect(iLog, "Same with hypen (block|content): " + blockWord  + "|" + nextWord + "\n", debugOn);
+                resTextLine = resTextLine + separator + nextWord;
             } else {
-                //console.log("Syncs num: " , len(syncs))
-                if (syncs-length!=1) {
-                    //console.log("Sync only: --------")
-                    //for k,v in sync.iteritems():
-                    //    console.log(k , v)
-                    //console.log("----------")
-                    //else:
-                    sync = syncs[0]
 
-                    for(let i=1;i<syncs.length;i++) {
-                        if (syncs[i]['findI']<sync['findI']) {
-                            sync = syncs[i];
-                            /*
-                            //console.log("Sync: --------")
-                            //for k,v in sync.iteritems():
-                            //    console.log(k , v)
-                            console.log("----------")
-                            */
+                iLog = logCollect(iLog, "Problem here (block|content):" + blockWord + "|" + nextWord + "\n", debugOn);
+                //console.log("Problem here (block|content):" + blockWord + "|" + nextWord)
+
+                let syncs = [];
+                let startPosBadWord = startPos;
+                let badBlockWord = blockWord;
+                let blockWordProblemI = blockWordI;
+                let foundSync = false;
+                while (foundSync==false && blockWordI<twoBlockWords.length && blockWordI-blockWordProblemI<LOOK_FORWARD) {
+                    blockWord = twoBlockWords[blockWordI];
+                    iLog = logCollect(iLog, "Try to find sync for this block word:" + blockWord +"\n", debugOn);
+                    //console.log("Try to find sync for this block word:" + blockWord)
+                    let findI = processedWords-1;
+                    let collectContentPart = "";
+                    collectedNextContentPart = "";
+                    while (findI<scrcontent.length && findI<processedWords+LOOK_FORWARD &&
+                            (wmatches(scrcontent[findI], blockWord)==DIFFERENT)) {
+                        iLog = logCollect(iLog,  "Try sync, no match:" + scrcontent[findI] + "!=" + blockWord + "\n", debugOn);
+                        //console.log("Try sync, no match:" + content[findI] + "!=" + blockWord)
+                        if (findI-processedWords<blockWords.length-blockWordProblemI-1) {
+                            collectContentPart = collectContentPart + separator + scrcontent[findI];
+                        } else {
+                            collectedNextContentPart = collectedNextContentPart + separator + scrcontent[findI];
+                        }
+                        separator = " ";
+                        findI = findI + 1;
+                    }
+                    if (findI>=processedWords+LOOK_FORWARD) {
+                        blockWordI = blockWordI + 1;
+                        iLog = logCollect(iLog, "Step blockWordI"  + "\n", false);
+                        //console.log("Step blockWordI")
+                    } else {
+                        iLog = logCollect(iLog, "Found sync: " + scrcontent[findI]  + "==" + blockWord  + "\n", debugOn);
+                        //console.log("Found sync: " + scrcontent[findI]  + "==" + blockWord)
+
+                        if (findI-processedWords<blockWords.length-blockWordProblemI-1) {
+                            collectContentPart = collectContentPart + separator + scrcontent[findI];
+                        } else {
+                            collectedNextContentPart = collectedNextContentPart + separator + scrcontent[findI];
+                        }
+                        sync = {'findI': findI,
+                                'blockWordI' : blockWordI,
+                                'collectContentPart': collectContentPart,
+                                'collectedNextContentPart' : collectedNextContentPart};
+                        syncs.push(sync);
+                        blockWordI = blockWordI + 1;
+                        startPos = startPos + blockWord.length + 1;
+                        //foundSync = True
+                    }
+                }
+
+                if (syncs.length==0) {
+                    console.log(iLog);
+                    console.log("Not found sync till end of block or "+
+                        LOOK_FORWARD+" words, word:" + nextWord +
+                        ", block word:" + badBlockWord +". Block is:" + block['time']);
+                    console.log("Old block:" + block['text']);
+                    selectInTextarea( el("ob"+block.index), startPosBadWord, startPosBadWord+badBlockWord.length);
+                    let i = processedWords;
+                    contentFrom = "";
+                    while (i<processedWords+10 && i<scrcontent.length) {
+                        contentFrom = contentFrom + scrcontent[i] + " ";
+                        i = i + 1;
+                    }
+                    console.log("Content from:" + contentFrom);
+                    newBlock.lostSync = true;
+                    alert("Sync lost. Bad block word:" + badBlockWord);
+                    el("stopped").innerHTML = badBlockWord;
+                    return newBlock; // !!!!!!
+                } else {
+                    //console.log("Syncs num: " , len(syncs))
+                    if (syncs-length!=1) {
+                        //console.log("Sync only: --------")
+                        //for k,v in sync.iteritems():
+                        //    console.log(k , v)
+                        //console.log("----------")
+                        //else:
+                        sync = syncs[0]
+
+                        for(let i=1;i<syncs.length;i++) {
+                            if (syncs[i]['findI']<sync['findI']) {
+                                sync = syncs[i];
+                                /*
+                                //console.log("Sync: --------")
+                                //for k,v in sync.iteritems():
+                                //    console.log(k , v)
+                                console.log("----------")
+                                */
+                            }
                         }
                     }
+                    processedWords = sync['findI'] + 1;
+                    iLog = logCollect(iLog, "Apply sync, add this to new block:" + sync['collectContentPart'] + "\n", debugOn);
+                    blockWordI = sync['blockWordI'];
+                    if (blockWordI>=blockWords.length) {
+                        nextI = blockWordI - blockWords.length;
+                        //alert("over the block! i:" + blockWordI + "\n collected next part:" + sync['collectedNextContentPart'] +
+                        //    "\n nextI:" + nextI);
+                        collectedNextContentPart = sync['collectedNextContentPart'];
+                        /*newBlock.lostSync = true;
+                        alert("Sync lost. Bad block word:" + badBlockWord);
+                        return newBlock;*/
+                    }
+                    resTextLine = resTextLine + sync['collectContentPart'];
+                    iLog = logCollect(iLog, "result so far:" + resTextLine + "\n", debugOn);
+                    if (blockWordI<twoBlockWords.length-1) {
+                        iLog = logCollect(iLog, "next block word:" + blockWords[blockWordI+1] + "\n", debugOn);
+                    }
+                    //logf.write(iLog.encode('utf-8') + "\n")
+                    //logf.write("\n\n")
+                    //console.log("result so far:" + resTextLine)
                 }
-                processedWords = sync['findI'] + 1;
-                iLog = logCollect(iLog, "Apply sync, add this to new block:" + sync['collectContentPart'] + "\n", false);
-                blockWordI = sync['blockWordI'];
-                if (blockWordI>=blockWords.length) {
-                    nextI = blockWordI - blockWords.length;
-                    //alert("over the block! i:" + blockWordI + "\n collected next part:" + sync['collectedNextContentPart'] +
-                    //    "\n nextI:" + nextI);
-                    collectedNextContentPart = sync['collectedNextContentPart'];
-                    /*newBlock.lostSync = true;
-                    alert("Sync lost. Bad block word:" + badBlockWord);
-                    return newBlock;*/
-                }
-                resTextLine = resTextLine + sync['collectContentPart'];
-                iLog = logCollect(iLog, "result so far:" + resTextLine + "\n", false);
-                if (blockWordI<twoBlockWords.length-1) {
-                    iLog = logCollect(iLog, "next block word:" + blockWords[blockWordI+1] + "\n", false);
-                }
-                //logf.write(iLog.encode('utf-8') + "\n")
-                //logf.write("\n\n")
-                //console.log("result so far:" + resTextLine)
             }
         }
         separator = " ";
@@ -441,6 +545,17 @@ function createResultSBV(resBlocks) {
     el("resultSVB").value = resLine;
 }
 
+function filterEmptySrcWords() {
+    let i = 0;
+    while (i<scrcontent.length) {
+        if (scrcontent[i].length==0) {
+            srccontent = scrcontent.splice(i,1);
+        } else {
+            i++;
+        }
+    }
+}
+
 function processSBV() {
     if (!SBVloaded) {
         loadOriginal();
@@ -454,6 +569,7 @@ function processSBV() {
                     .replace(/  /g, ' ')
                     .replace(/  /g, ' ')
                     .split(' ');
+    filterEmptySrcWords();
     let resBlocks = [];
     let bi = 0;
     let scrollTo = -1;
