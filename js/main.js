@@ -3,6 +3,7 @@ var scrcontent;
 var processedWords = 0;
 var SBVloaded = false;
 
+
 function printTestStr(str) {
     el("script").value = el("script").value + str;
 }
@@ -109,14 +110,32 @@ function loadOriginal() {
 const FIND_BLOCK_LEN = 30;
 
 function findBlock(bi) {
-    let findText = el("rb"+bi).value;
-    if (findText.length>0) {
-        //alert("find:" + bi + "\n" + findText);
-        let start = el("script").value.indexOf(findText.substring(0,Math.max(findText.length, FIND_BLOCK_LEN)));
-        if (start>-1) {
-            selectInTextarea(el("script"), start, start + findText.length, true);
-        }
+    if (el("rb"+bi).startScriptPos!=-1) {
+        selectInTextarea(el("script"), el("rb"+bi).startScriptPos, el("rb"+bi).endScriptPos, true);
     }
+}
+
+function findNextWordInScript(scriptPos, nextWord) {
+    let start = el("script").value.substring(scriptPos).indexOf(nextWord);
+    if (start==-1) {
+        // we should never end up here
+        console.log("ERROR: not found this word in script:" + nextWord + ", position:" + scriptPos);
+        throw new Error();
+    }
+    return start + scriptPos;
+}
+
+function stepOverBlock(fromScriptPos, text) {
+    let words = text.split(' ');
+    let i = 0;
+    let actScriptPos = fromScriptPos;
+    while (i<words.length) {
+        if (words[i].length>0) {
+            actScriptPos = findNextWordInScript(actScriptPos, words[i]) + words[i].length;
+        }
+        i++;
+    }
+    return actScriptPos+1;
 }
 
 function refreshBlocksFromScreen() {
@@ -197,7 +216,7 @@ function wmatches(srcWord, blockWord) {
             if (dl2==1 && diff.length>0) {
                 return DIFFERENT;
             }
-            if (dl1>dl2+4) {
+            if (dl1>dl2+2) {
                 return DIFFERENT;
             }
             if (diff.length==1 && diff[0]==dl2-1) {
@@ -207,7 +226,7 @@ function wmatches(srcWord, blockWord) {
             if (dl1==1 && diff.length>0) {
                 return DIFFERENT;
             }
-            if (dl2>dl1+4) {
+            if (dl2>dl1+2) {
                 return DIFFERENT;
             }
             if (diff.length==1 && diff[0]==dl1-1) {
@@ -502,6 +521,8 @@ function processBlock(block, nextBlock, prevResBlock = null, debugOn = false) {
                         /*newBlock.lostSync = true;
                         alert("Sync lost. Bad block word:" + badBlockWord);
                         return newBlock;*/
+                    } else {
+                        collectedNextContentPart = "";
                     }
                     resTextLine = resTextLine + sync['collectContentPart'];
                     iLog = logCollect(iLog, "result so far:" + resTextLine + "\n", debugOn);
@@ -540,6 +561,9 @@ function processBlock(block, nextBlock, prevResBlock = null, debugOn = false) {
 function createResultSBV(resBlocks) {
     resLine = "";
     resBlocks.forEach(function(block) {
+        if (block.time === undefined || block.text === undefined) {
+            return;
+        }
         resLine = resLine + block.time.trim() + "\n" + block.text.trim() + "\n\n";
     });
     el("resultSVB").value = resLine;
@@ -573,12 +597,14 @@ function processSBV() {
     let resBlocks = [];
     let bi = 0;
     let scrollTo = -1;
+    let blockScriptPos = 0;
     for(bi=0;bi<blocks.length;bi++) {
+        let startBlockScriptPos = blockScriptPos;
         resBlocks[bi] = processBlock(blocks[bi],
             (bi+1<blocks.length ? blocks[bi+1] : null),
             (bi>0 ? resBlocks[bi-1] : null));
-        if (resBlocks[bi].nextText.length>0) {
-            console.log("This is transferred: " + resBlocks[bi].nextText);
+            if (resBlocks[bi].nextText.length>0) {
+                console.log("This is transferred: " + resBlocks[bi].nextText);
             console.log("blcokWordI in next block: " +resBlocks[bi].nextI);
         }
         if (resBlocks[bi].lostSync) {
@@ -592,7 +618,14 @@ function processSBV() {
             alert("Whole script is processed!");
             break;
         }
-	  el("rb"+bi).value = resBlocks[bi].text;
+
+        el("rb"+bi).value = resBlocks[bi].text;
+        resBlocks[bi].startScriptPos = blockScriptPos;
+        blockScriptPos = stepOverBlock(blockScriptPos, resBlocks[bi].text);
+        resBlocks[bi].endScriptPos = blockScriptPos;
+        el("rb"+bi).startScriptPos = resBlocks[bi].startScriptPos;
+        el("rb"+bi).endScriptPos = resBlocks[bi].endScriptPos;
+
         let wordNoOrig = blocks[bi].text.split(' ').length;
         let wordNoRes = resBlocks[bi].text.split(' ').length;
         let wordNoDiff = Math.abs(wordNoOrig-wordNoRes);
@@ -615,7 +648,9 @@ function processSBV() {
     for(let i=resBlocks.length-1;i<blocks.length;i++) {
         el("rb"+i).style.backgroundColor = "";
         el("b"+i).style.borderRight="5px solid red";
+        el("rb"+i).startScriptPos = -1;
     }
+
     if (scrollTo==-1) {
         scrollTo = block.length;
     }
