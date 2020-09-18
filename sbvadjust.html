@@ -9,16 +9,19 @@
 
     <link rel="stylesheet" href="css/styles.css?v=1.0">
     <script src="js/main.js"></script>
+    <script src="js/cutter.js"></script>
     <script src="js/session.js?v=2"></script>
 </head>
 
 <body onload="init();">
     <h1>SBV adjust to text</h1>
     <div id="buttons">
+        <button id="cutButton" onclick="cutScript();">Cut script</button>
+        &nbsp;|&nbsp;
         <button id="loadButton" onclick="loadOriginal();">Load subs</button>
         <button id="processButton" onclick="processSBV();">Process SBV</button>
         <button id="saveButton" onclick="saveResultSBV();">Save result SBV</button>
-        |&nbsp;
+        &nbsp;|&nbsp;
         <button id="saveButton" onclick="sessionSave();">Session save</button>
         <button id="saveButton" onclick="sessionLoad();">Session load</button>
     </div>
