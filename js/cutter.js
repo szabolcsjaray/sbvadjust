@@ -3,6 +3,8 @@ const midSigns = ",;:-()";
 const MAX_LENGTH = 120;
 const MIN_LENGTH = 30;
 
+var cutResBlocks = [];
+
 function isEndSigned(word) {
     return (endSigns.indexOf(word[word.length-1])!=-1);
 }
@@ -86,20 +88,24 @@ function separateNewLine(words) {
 }
 
 function generateTimestamp(seconds, seconds1) {
+    let frac = Math.floor((seconds-Math.floor(seconds))*1000);
+    seconds = Math.floor(seconds);
     let secs = seconds % 60;
     let minutes = Math.floor(seconds/ 60) % 60;
     let hours = Math.floor(seconds/ 3600);
 
+    let frac1 = Math.floor((seconds1-Math.floor(seconds1))*1000);
+    seconds1 = Math.floor(seconds1);
     let secs1 = seconds1 % 60;
     let minutes1 = Math.floor(seconds1/ 60) % 60;
     let hours1 = Math.floor(seconds1/ 3600);
 
     return ""+hours+":" +
         (minutes<10? "0" : "") + minutes + ":" +
-        (secs<10? "0" : "") + secs + ".000," +
+        (secs<10? "0" : "") + secs + "." + frac.toString().padStart(3, "0") + "," +
         hours1+":" +
         (minutes1<10? "0" : "") + minutes1 + ":" +
-        (secs1<10? "0" : "") + secs1 + ".000";
+        (secs1<10? "0" : "") + secs1 + "." + frac1.toString().padStart(3, "0");
 }
 
 function cutScript() {
@@ -120,7 +126,15 @@ function cutScript() {
         let newBlock = {};
         newBlock.text = sentenceBlock.SENTENCE;
 
-        newBlock.time = generateTimestamp(seconds, seconds+5);
+        if (cutResBlocks.length>blockI) {
+            newBlock.time = cutResBlocks[blockI].time;
+            newBlock.startTime = cutResBlocks[blockI].startTime;
+            newBlock.endTime = cutResBlocks[blockI].endTime;
+        } else {
+            newBlock.time = generateTimestamp(seconds, seconds+5);
+            newBlock.startTime = seconds;
+            newBlock.endTime = seconds+5;
+        }
         seconds += 5;
         newBlock.startScriptPos = blockScriptPos;
         blockScriptPos = stepOverBlock(blockScriptPos, newBlock.text);
@@ -131,4 +145,5 @@ function cutScript() {
 
     putresBlockOnScreen(resBlocks);
     createResultSBV(resBlocks);
+    cutResBlocks = resBlocks;
 }

@@ -11,10 +11,14 @@
     <script src="js/main.js"></script>
     <script src="js/cutter.js"></script>
     <script src="js/session.js?v=2"></script>
+    <script src="js/myvideo.js"></script>
 </head>
 
 <body onload="init();">
-    <h1>SBV adjust to text</h1>
+    <div style="display: inline-block;width: 40%;text-align: center;">
+        <h1>SBV adjust to text</h1>
+        <p>Copyright: Szabolcs Járay 2020</p>
+    </div>
     <div id="buttons">
         <button id="cutButton" onclick="cutScript();">Cut script</button>
         &nbsp;|&nbsp;
@@ -42,7 +46,29 @@
             <textarea id="script" title="Original script">
                 The original script of the video comes here.
             </textarea>
-            Stopped at this word in the block: <p id="stopped"></p> | Only red blocks: <input type="checkbox" id="onlyRed" onchange="changeOnlyRed();">
+            Stopped at this word in the block: <p id="stopped"></p> | Only red blocks:
+                <input type="checkbox" id="onlyRed" onchange="changeOnlyRed();">
+            <div id="ifdiv" style="text-align: center;width: 100%;height: 45%;position: relative;">
+                <div id="leftDiv" style="position: relative; display:inline-block; width: 50%; height:100%;">
+                <iframe id="videoFrame" class="yvideo"
+                    src="http://www.youtube.com/embed/kvKDUS7sYy8?rel=0&amp;controls=0&amp;hd=1&amp;showinfo=0&amp;enablejsapi=1"
+                    allowfullscreen="" style="height: 87%;width: 100%;/*! text-align: center; */"
+                    width="100%" height="443" frameborder="0">
+                </iframe>
+              </div>
+              <div style="width:45%;position:relative; display:inline-block; text-align: left;">
+                Caption timing control keys:<br>
+                <p style="font-weight: bold;">a</p> : start timing at the beginning of the video<br>
+                <p style="font-weight: bold;">n</p> : next text block / start of next text block (after end og block)<br>
+                <p style="font-weight: bold;">m</p> : end of text block, not starting the next<br>
+                <p style="font-weight: bold;">l</p> : stop for correction, non matching text<br>
+                <p style="font-weight: bold;">r</p> : restart after correction at given block<br>
+                <p style="font-weight: bold;">q</p> : save blocks to result<br>
+                <input type="text" id="keyInput" size="1">
+                <button id="stopButton" onclick="pauseVideo();">Pause</button>
+                <button id="startButton" onclick="startVideo();">Start</button>
+
+            </div>
         </div>
     </div>
 </body>

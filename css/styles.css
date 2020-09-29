@@ -1,3 +1,6 @@
+body {
+    background-color: #c0c5df;
+}
 textarea {
     resize: none;
     background-color: blanchedalmond;
@@ -16,6 +19,7 @@ textarea {
     width: 47%;
     height: 90%;
     overflow: scroll;
+    background-color: white;
 }
 #text {
     margin: 5px;
@@ -24,6 +28,7 @@ textarea {
     width: 47%;
     overflow: hidden;
     height: 90%;
+    background-color: white;
 }
 textarea.blockText {
     background-color: blanchedalmond;
@@ -35,13 +40,13 @@ textarea.resultBlock {
 }
 textarea#script {
     width: 98%;
-    height: 90%;
+    height: 50%;
     margin: auto;
 }
 h1 {
     text-align: center;
-    width:40%;
-    display: inline-block;
+    display: block;
+    margin-bottom: 2px;
 }
 .block {
     border: 1px solid grey;

@@ -10,6 +10,7 @@ function printTestStr(str) {
 
 function init() {
     let url = new URL(window.location.href);
+    addKeyListener();
     if (url.searchParams.get('test')) {
         console.log(getRidOffMarks("Iti!?;"));
         console.log(getRidOffMarks("Itiner"));
@@ -56,7 +57,7 @@ function createHTMLForBlock(ind, blockTime, blockText, blockIndex, blockResText)
     return "            <div class=\"block\" id=\"b"+ind+"\">"+
     (ind+1) + ". Time: <p id=\"ot"+ind+"\">"+ blockTime +"</p><br>" +
     "<textarea id=\"ob"+ind+"\" class=\"blockText\" title=\"Original SBV block\""+
-    "onchange=\"refreshBlocksFromScreen();\"" +
+    "onchange=\"refreshBlocksFromScreen();\" onclick=\"selectBlock("+ind+");\"" +
     ">"+
     blockText+
     "</textarea>"+
