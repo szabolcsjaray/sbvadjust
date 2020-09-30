@@ -1,5 +1,4 @@
 //load the IFrame Player API code asynchronously
-var tag = document.createElement('script');
 var player;
 var timingBlock = 0;
 const TIMING_STOPPED = 0;
@@ -9,9 +8,12 @@ const TIMING_PAUSED = 3;
 
 var phase = TIMING_STOPPED;
 
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+function initVideo() {
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
 
 //gets called once the player API has loaded
 function onYouTubeIframeAPIReady() {

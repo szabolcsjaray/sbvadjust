@@ -10,6 +10,7 @@ function printTestStr(str) {
 
 function init() {
     let url = new URL(window.location.href);
+    initVideo();
     addKeyListener();
     if (url.searchParams.get('test')) {
         console.log(getRidOffMarks("Iti!?;"));
@@ -704,4 +705,16 @@ function changeOnlyRed() {
              el("b"+bi).style.display = "block";
         }
     }
+}
+
+function translated() {
+    var newBlock = {};
+    resBlocks = [];
+    let i=0;
+    for(i=0;i<blocks.length;i++) {
+        newBlock.time = blocks[i].time.trim();
+        newBlock.text = el('rb'+i).value.trim();
+        resBlocks[i] = newBlock;
+    }
+    createResultSBV();
 }
