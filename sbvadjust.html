@@ -12,28 +12,31 @@
     <script src="js/cutter.js"></script>
     <script src="js/session.js?v=2"></script>
     <script src="js/myvideo.js"></script>
+    <script src="js/files.js"></script>
 </head>
 
 <body onload="init();">
     <div style="display: inline-block;width: 40%;text-align: center;">
-        <h1>SBV adjust to text</h1>
-        <p>Copyright: Szabolcs Járay 2020</p>
+        <h1>YouTube SBV helper</h1>
+        <p>Created by: Szabolcs Járay, 2020</p>
     </div>
     <div id="buttons">
         <button id="cutButton" onclick="cutScript();">Cut script</button>
         &nbsp;|&nbsp;
         <button id="loadButton" onclick="loadOriginal();">Load subs</button>
-        <!-- button id="translatedButton" onclick="translated();">Translated</button -->
         &nbsp;|&nbsp;
         <button id="processButton" onclick="processSBV();">Process SBV</button>
-        <button id="saveButton" onclick="saveResultSBV();">Save result SBV</button>
         &nbsp;|&nbsp;
         <button id="saveButton" onclick="sessionSave();">Session save</button>
         <button id="saveButton" onclick="sessionLoad();">Session load</button>
     </div>
     <div id="svbfiles">
+        <input id="origFileSelect" type="file" name="name" style="display: none;" />
+        <button id="loadOrigSBVFileButton" onclick="loadOrigSBVFileClick();">Load</button>
         <textarea id="origSBV"  title="Original SBV file">Auto generated SBV file content comes here.</textarea>
         <textarea id="resultSVB" title="Result SBV file" readonly>It will contain the result SVB.</textarea>
+        <button id="loadOrigSBVFileButton" onclick="saveResultSBV();">Save</button>
+        <input id="origFileSelect" type="file" name="name" style="display: none;" />
     </div>
 
     <div id="container">
@@ -52,11 +55,14 @@
                 <input type="checkbox" id="onlyRed" onchange="changeOnlyRed();">
             <div id="ifdiv" style="text-align: center;width: 100%;height: 45%;position: relative;">
                 <div id="leftDiv" style="position: relative; display:inline-block; width: 50%; height:100%;">
-                <iframe id="videoFrame" class="yvideo"
-                    src="http://www.youtube.com/embed/kvKDUS7sYy8?rel=0&amp;controls=0&amp;hd=1&amp;showinfo=0&amp;enablejsapi=1"
-                    allowfullscreen="" style="height: 87%;width: 100%;/*! text-align: center; */"
-                    width="100%" height="443" frameborder="0">
-                </iframe>
+                    YT Video ID:
+                    <input type="text" id="videoID" style="width:50%;margin-bottom:5px;">
+                    <button id="loadVideoButton" onclick="loadVideo();">Load</button>
+                    <iframe id="videoFrame" class="yvideo"
+                        src="http://www.youtube.com/embed/kvKDUS7sYy8?rel=0&amp;controls=0&amp;hd=1&amp;showinfo=0&amp;enablejsapi=1"
+                        allowfullscreen="" style="height: 87%;width: 100%;/*! text-align: center; */"
+                        width="100%" height="443" frameborder="0">
+                    </iframe>
               </div>
               <div style="width:45%;position:relative; display:inline-block; text-align: left;">
                 Caption timing control keys:<br>

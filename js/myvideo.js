@@ -115,3 +115,13 @@ function addKeyListener() {
     el('keyInput').value='';
   });
 }
+
+const VIDEO_ADDRESS_TEMPLATE = "http://www.youtube.com/embed/VIDEOID?rel=0&amp;controls=0&amp;hd=1&amp;showinfo=0&amp;enablejsapi=1"
+
+function loadVideo() {
+    let videoId = el("videoID").value;
+    address = VIDEO_ADDRESS_TEMPLATE.replace("VIDEOID", videoId);
+    console.log(address);
+    el('videoFrame').src = address;
+    //initVideo();
+}

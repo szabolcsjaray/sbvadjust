@@ -12,6 +12,7 @@ function init() {
     let url = new URL(window.location.href);
     initVideo();
     addKeyListener();
+    el('origFileSelect').addEventListener('change', loadOrigSBVFile);
     if (url.searchParams.get('test')) {
         console.log(getRidOffMarks("Iti!?;"));
         console.log(getRidOffMarks("Itiner"));
@@ -667,25 +668,6 @@ function processSBV() {
     createResultSBV(resBlocks);
 }
 
-function saveResultSBV() {
-    let textToWrite = el("resultSVB").value;
-    let textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
-    let downloadLink = document.createElement("a");
-    downloadLink.download = "result.svb";
-    downloadLink.innerHTML = "Download File";
-    if (window.webkitURL != null)
-    { //Chrome
-        downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-    }
-    else
-    { // Firefox
-        downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-        downloadLink.style.display = "none";
-        document.body.appendChild(downloadLink);
-    }
-
-    downloadLink.click();
-}
 
 function isBlockRed(bi) {
     return 'mark' in blocks[bi] && blocks[bi].mark=="red";
@@ -705,16 +687,4 @@ function changeOnlyRed() {
              el("b"+bi).style.display = "block";
         }
     }
-}
-
-function translated() {
-    var newBlock = {};
-    resBlocks = [];
-    let i=0;
-    for(i=0;i<blocks.length;i++) {
-        newBlock.time = blocks[i].time.trim();
-        newBlock.text = el('rb'+i).value.trim();
-        resBlocks[i] = newBlock;
-    }
-    createResultSBV();
 }

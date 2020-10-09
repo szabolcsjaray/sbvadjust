@@ -1,5 +1,10 @@
 body {
     background-color: #c0c5df;
+    overflow: auto;
+    width: 100%;
+    height:100%;
+    position:absolute;
+    margin: 0;
 }
 textarea {
     resize: none;
@@ -7,27 +12,33 @@ textarea {
 }
 #container {
     display: flex;
-    width: 97%;
+    width: 100%;
     margin: auto;
     overflow: hidden;
-    height: 600px;
+    height: 80%;
 }
 #blocks {
-    margin: 5px;
+    margin-bottom: 0px;
+    margin-top: 5px;
+    margin-left: auto;
+    margin-right: 5px;
     padding: 5px;
     border: 1px solid grey;
     width: 47%;
-    height: 90%;
+    height: 95%;
     overflow: scroll;
     background-color: white;
 }
 #text {
-    margin: 5px;
+    margin-bottom: 0px;
+    margin-top: 5px;
+    margin-right: auto;
+    margin-left: 5px;
     padding: 5px;
     border: 1px solid grey;
     width: 47%;
-    overflow: hidden;
-    height: 90%;
+    overflow: auto;
+    height: 95%;
     background-color: white;
 }
 textarea.blockText {
@@ -47,6 +58,7 @@ h1 {
     text-align: center;
     display: block;
     margin-bottom: 2px;
+    margin-top: 5px;
 }
 .block {
     border: 1px solid grey;
@@ -56,16 +68,21 @@ h1 {
 textarea#origSBV {
     width: 45%;
     height: 7%;
+    margin-right: 5px;
 }
 textarea#resultSVB {
     width: 45%;
     height: 7%;
+    margin-left: 5px;
 }
 #svbfiles {
     width: 95%;
-    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;/*
     position:relative;
-    text-align: center;
+    text-align: center;*/
 }
 #buttons {
     text-align: center;
@@ -73,15 +90,14 @@ textarea#resultSVB {
     display: inline-block;
 }
 button {
-    background-color: darkseagreen;
+    background-color: rgb(176, 201, 221);
     margin-bottom: 5px;
+    margin-right: 2px;
+    margin-left: 2px;
 }
 
 p {
     display: inline;
-}
-body {
-    overflow: hidden;
 }
 
 img.icon {
