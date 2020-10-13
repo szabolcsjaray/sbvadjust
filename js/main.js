@@ -12,7 +12,9 @@ function init() {
     let url = new URL(window.location.href);
     initVideo();
     addKeyListener();
+    showAndHideControls();
     el('origFileSelect').addEventListener('change', loadOrigSBVFile);
+    el('scriptFileSelect').addEventListener('change', loadScriptFile);
     if (url.searchParams.get('test')) {
         console.log(getRidOffMarks("Iti!?;"));
         console.log(getRidOffMarks("Itiner"));
@@ -64,7 +66,7 @@ function createHTMLForBlock(ind, blockTime, blockText, blockIndex, blockResText)
     blockText+
     "</textarea>"+
     "<textarea id=\"rb"+ind+"\" class=\"blockText resultBlock\" title=\"Result SBV block\""+
-    "onchange=\"refreshResultSVB();\"" +
+    "onchange=\"refreshResultSBV();\"" +
     ">"+blockResText+"</textarea>" +
     "<div style=\"display:inline-block;width:3%;height:40px;position:relative;\">"+
     "<img class=\"icon\" src=\"pics/target.png\" style=\"width:100%;top:0px;position:absolute;\""+
@@ -151,7 +153,7 @@ function refreshBlocksFromScreen() {
     }
 }
 
-function refreshResultSVB() {
+function refreshResultSBV() {
     let resLine = "";
     for(let i=0;i<blocks.length;i++) {
         let line = el("rb"+i).value.trim();
@@ -159,7 +161,7 @@ function refreshResultSVB() {
             resLine = resLine + blocks[i].time + "\n" + line + "\n\n";
         }
     }
-    el("resultSVB").value = resLine;
+    el("resultSBV").value = resLine;
 }
 
 const EXACT_MATCH = 1;
@@ -573,7 +575,7 @@ function createResultSBV(resBlocks) {
         }
         resLine = resLine + block.time.trim() + "\n" + block.text.trim() + "\n\n";
     });
-    el("resultSVB").value = resLine;
+    el("resultSBV").value = resLine;
 }
 
 function filterEmptySrcWords() {

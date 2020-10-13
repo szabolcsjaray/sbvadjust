@@ -38,6 +38,6 @@ function sessionLoad() {
             el("rb"+i).value = resBlocks[i];
         }
         refreshBlocksFromScreen();
-        refreshResultSVB();
+        refreshResultSBV();
     }
 }

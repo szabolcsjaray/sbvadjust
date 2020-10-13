@@ -13,30 +13,43 @@
     <script src="js/session.js?v=2"></script>
     <script src="js/myvideo.js"></script>
     <script src="js/files.js"></script>
+    <script src="js/operations.js"></script>
+    <script src="js/pops.js"></script>
 </head>
 
 <body onload="init();">
-    <div style="display: inline-block;width: 40%;text-align: center;">
+    <div id="title" style="">
         <h1>YouTube SBV helper</h1>
         <p>Created by: Szabolcs Járay, 2020</p>
     </div>
     <div id="buttons">
-        <button id="cutButton" onclick="cutScript();">Cut script</button>
+        <select id="operation" type="select" class="menu" onchange='operationChanged();'>
+            <option>Translate</option>
+            <option>Adjust text</option>
+            <option>Add subtitles</option>
+        </select>
         &nbsp;|&nbsp;
-        <button id="loadButton" onclick="loadOriginal();">Load subs</button>
+        <button id="cutButton" onclick="cutScript();" class="menu">Cut script</button>
+        <button id="loadButton" onclick="loadOriginal();" class="menu">Load subs</button>
+        <button id="processButton" onclick="processSBV();" class="menu">Process SBV</button>
         &nbsp;|&nbsp;
-        <button id="processButton" onclick="processSBV();">Process SBV</button>
+        <button id="saveButton" onclick="sessionSave();" class="menu">Session save</button>
+        <button id="saveButton" onclick="sessionLoad();" class="menu">Session load</button>
         &nbsp;|&nbsp;
-        <button id="saveButton" onclick="sessionSave();">Session save</button>
-        <button id="saveButton" onclick="sessionLoad();">Session load</button>
+        <button id="helpButton" onclick="help();" class="menu">Help</button>
     </div>
     <div id="svbfiles">
-        <input id="origFileSelect" type="file" name="name" style="display: none;" />
-        <button id="loadOrigSBVFileButton" onclick="loadOrigSBVFileClick();">Load</button>
+        <div class="centeredDiv">
+            <input id="origFileSelect" type="file" name="name" style="display: none;" />
+            <button id="loadOrigSBVFileButton" onclick="loadOrigSBVFileClick();">Load</button>
+            <button id="showOrigSBVFileButton" onclick="popThis('origSBV');">Show</button>
+        </div>
         <textarea id="origSBV"  title="Original SBV file">Auto generated SBV file content comes here.</textarea>
-        <textarea id="resultSVB" title="Result SBV file" readonly>It will contain the result SVB.</textarea>
-        <button id="loadOrigSBVFileButton" onclick="saveResultSBV();">Save</button>
-        <input id="origFileSelect" type="file" name="name" style="display: none;" />
+        <textarea id="resultSBV" title="Result SBV file" readonly>It will contain the result SVB.</textarea>
+        <div class="centeredDiv">
+            <button id="saveResSBVFileButton" onclick="saveResultSBV();">Save</button>
+            <button id="showResSBVFileButton" onclick="popThis('resultSBV');">Show</button>
+        </div>
     </div>
 
     <div id="container">
@@ -48,11 +61,20 @@
             </div>
         </div>
         <div id="text">
-            <textarea id="script" title="Original script">
-                The original script of the video comes here.
-            </textarea>
+            <div id="scriptDiv">
+                <div id="scriptHead">
+                    <div id="scriptTitle">Script area:</div>
+                    <div id="scriptButtons">
+                        <button id="loadScript" onclick="loadScriptClick();">Load</button>
+                        <input id="scriptFileSelect" type="file" name="name" style="display: none;" />
+                    </div>
+                </div>
+                <textarea id="script" title="Original script">
+                    The original script of the video comes here.
+                </textarea>
+            </div>
             Stopped at this word in the block: <p id="stopped"></p> | Only red blocks:
-                <input type="checkbox" id="onlyRed" onchange="changeOnlyRed();">
+            <input type="checkbox" id="onlyRed" onchange="changeOnlyRed();">
             <div id="ifdiv" style="text-align: center;width: 100%;height: 45%;position: relative;">
                 <div id="leftDiv" style="position: relative; display:inline-block; width: 50%; height:100%;">
                     YT Video ID:
@@ -63,20 +85,58 @@
                         allowfullscreen="" style="height: 87%;width: 100%;/*! text-align: center; */"
                         width="100%" height="443" frameborder="0">
                     </iframe>
-              </div>
-              <div style="width:45%;position:relative; display:inline-block; text-align: left;">
-                Caption timing control keys:<br>
-                <p style="font-weight: bold;">a</p> : start timing at the beginning of the video<br>
-                <p style="font-weight: bold;">n</p> : next text block / start of next text block (after end og block)<br>
-                <p style="font-weight: bold;">m</p> : end of text block, not starting the next<br>
-                <p style="font-weight: bold;">l</p> : stop for correction, non matching text<br>
-                <p style="font-weight: bold;">r</p> : restart after correction at given block<br>
-                <p style="font-weight: bold;">q</p> : save blocks to result<br>
-                <input type="text" id="keyInput" size="1">
-                <button id="stopButton" onclick="pauseVideo();">Pause</button>
-                <button id="startButton" onclick="startVideo();">Start</button>
-
+                </div>
+               <div style="width:45%;position:relative; display:inline-block; text-align: left;">
+                    Caption timing control keys:<br>
+                    <p style="font-weight: bold;">a</p> : start timing at the beginning of the video<br>
+                    <p style="font-weight: bold;">n</p> : next text block / start of next text block (after end og block)<br>
+                    <p style="font-weight: bold;">m</p> : end of text block, not starting the next<br>
+                    <p style="font-weight: bold;">l</p> : stop for correction, non matching text<br>
+                    <p style="font-weight: bold;">r</p> : restart after correction at given block<br>
+                    <p style="font-weight: bold;">q</p> : save blocks to result<br>
+                    <input type="text" id="keyInput" size="1">
+                    <button id="stopButton" onclick="pauseVideo();">Pause</button>
+                    <button id="startButton" onclick="startVideo();">Start</button>
+                </div>
             </div>
+        </div>
+    </div>
+    <div id="popContainer" class="popContainers">
+        <div id="popDiv" class="popDivs">
+            <img id="closeButton" src="pics/close.gif" onclick="closePop();">
+            <textArea id="popTextArea"></textArea>
+        </div>
+    </div>
+    <div id="helpContainer" class="popContainers">
+        <div id="helpDiv" class="popDivs">
+            <img id="closeButton" src="pics/close.gif" onclick="closeHelp();">
+            <h2 style="text-align: center;">HELP</h2>
+            You can find three functionalities in the program:
+            <ul>
+                <li>translation of a subtitle</li>
+                <li>adjusting the script of a video to the autogenerated subtitle's text boxes</li>
+                <li>creating subtitles from the script for a video</li>
+            </ul>
+
+            <h3>Translation of a subtitle</h3>
+            Steps:
+            <ol>
+                <li>Open original subtitle SBV file (Load button on top left, or copy/paste content into top left text box.)</li>
+                <li>Optional step: if you have machine translated (i.e. Google Translate) content, load into the middle right big text box.
+                    The machine translated text is loaded into the proper text boxes in the Work area.
+                </li>
+                <li>Write translation into the right text boxesin the Work area</li>
+            </ol>
+
+            Caption timing control keys:
+            <ul>
+                <li><b>a</b> : start timing at the beginning of the video</li>
+                <li><b>n</b> : next text block / start of next text block (after end og block)</li>
+                <li><b>m</b> : end of text block, not starting the next</li>
+                <li><b>l</b> : stop for correction, non matching text</li>
+                <li><b>r</b> : restart after correction at given block</li>
+                <li><b>q</b> : save blocks to result</li>
+            </ul>
         </div>
     </div>
 </body>
