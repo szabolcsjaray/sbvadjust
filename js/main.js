@@ -690,3 +690,43 @@ function changeOnlyRed() {
         }
     }
 }
+
+
+function loadTranslatedBlocks() {
+    if (blocks.length==0) {
+        if (SBVloaded) {
+            loadOriginal();
+        } else {
+            alert("Load the original SBV first (top left text area)!");
+            return;
+        }
+    }
+    resBlocks = [];
+    let original = el("script").value;
+    let arrayOfLines = original.match(/[^\r\n]+/g);
+    let bi = 0;
+    for(let li = 0;li<arrayOfLines.length;) {
+        arrayOfLines[li] = arrayOfLines[li].replace(/(\r\n)/g, " ");
+        let block = {time: arrayOfLines[li]};
+        li++; if (li>arrayOfLines.length) { break; }
+        let text = arrayOfLines[li];
+        li++;
+        while(li<arrayOfLines.length && arrayOfLines[li].match(/^(\d:)/)==null) {
+            text = text + " " + arrayOfLines[li];
+            li++;
+            if (li>arrayOfLines.length) { break; }
+        }
+        block.text = text;
+        console.log(""+bi+".:"+text);
+        block.index = bi;
+        bi = bi + 1;
+        resBlocks.push(block);
+    }
+
+    let ind = 0;
+    resBlocks.forEach( function(block) {
+        el('rb'+ind).value = block.text;
+        ind++;
+    });
+    refreshResultSBV();
+}

@@ -180,4 +180,5 @@ p#stopped {
 #scriptButtons {
     width: 50%;
     text-align: right;
+    display: flex;
 }

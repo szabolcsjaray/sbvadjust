@@ -26,6 +26,5 @@ function showAndHideControls() {
 
 function operationChanged() {
     actualOp = el('operation').selectedIndex;
-    alert(actualOp);
     showAndHideControls();
 }
