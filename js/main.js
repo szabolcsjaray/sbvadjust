@@ -717,7 +717,6 @@ function loadTranslatedBlocks() {
             if (li>arrayOfLines.length) { break; }
         }
         block.text = text;
-        console.log(""+bi+".:"+text);
         block.index = bi;
         bi = bi + 1;
         resBlocks.push(block);

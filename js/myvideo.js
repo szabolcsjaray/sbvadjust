@@ -44,6 +44,7 @@ function refreshTime(bi) {
     let ts = generateTimestamp(cutResBlocks[bi].startTime, cutResBlocks[bi].endTime);
     el('ot'+bi).innerHTML = ts;
     cutResBlocks[bi].time = ts;
+    resBlocks[bi].time = ts;
 }
 
 function nextBlock(time) {

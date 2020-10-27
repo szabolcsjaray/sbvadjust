@@ -1,6 +1,6 @@
 const endSigns = ".!?";
 const midSigns = ",;:-()";
-const MAX_LENGTH = 120;
+const MAX_LENGTH = 140;
 const MIN_LENGTH = 30;
 
 var cutResBlocks = [];
@@ -18,6 +18,8 @@ function readSentenceBlock(words, wordI) {
     let blockEnds = false;
     let sep = "";
     let startI = wordI;
+    let midSignI = -1;
+    let lastMidSentence = "";
     while (!blockEnds && wordI<words.length) {
         if ("\n".localeCompare(words[wordI])==0) {
             if (sentence.length>=MIN_LENGTH) {
@@ -45,8 +47,15 @@ function readSentenceBlock(words, wordI) {
                 }
             } else {
                 if (sentence.length>MAX_LENGTH) {
-
-                    return {SENTENCE:sentence.trim(), NEWWORDCOUNT: wordI+1};
+                    if (midSignI!=-1) {
+                        return {SENTENCE:lastMidSentence.trim(), NEWWORDCOUNT: midSignI+1};
+                    } else {
+                        return {SENTENCE:sentence.trim(), NEWWORDCOUNT: wordI+1};
+                    }
+                }
+                if (isMidSigned(words[wordI])) {
+                    midSignI = wordI;
+                    lastMidSentence = sentence;
                 }
             }
         }
@@ -145,5 +154,5 @@ function cutScript() {
 
     putresBlockOnScreen(resBlocks);
     createResultSBV(resBlocks);
-    cutResBlocks = resBlocks;
+    cutResBlocks = resBlocks.slice();
 }
