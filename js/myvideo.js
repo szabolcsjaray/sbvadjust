@@ -97,7 +97,6 @@ function addKeyListener() {
     if (event.code=='KeyA') {
         player.seekTo(0);
         player.playVideo();
-        console.log("video started?");
         timingBlock=0;
         nextBlock(0);
         phase = TIMING_IN_BLOCK;
@@ -121,6 +120,20 @@ const VIDEO_ADDRESS_TEMPLATE = "http://www.youtube.com/embed/VIDEOID?rel=0&amp;c
 
 function loadVideo() {
     let videoId = el("videoID").value;
+    if (videoId.startsWith('http')) {
+        let idPart  = videoId.search('v=');
+        if (idPart==-1 || videoId.length<idPart+7) {
+            alert('Wrong video address!');
+            return;
+        }
+        let idEnds = videoId.substr(idPart).search('&');
+        if (idEnds==-1) {
+            videoId = videoId.substr(idPart+2);
+        } else {
+            videoId = videoId.substr(idPart+2,idEnds-2);
+        }
+        el("videoID").value = videoId;
+    }
     address = VIDEO_ADDRESS_TEMPLATE.replace("VIDEOID", videoId);
     console.log(address);
     el('videoFrame').src = address;

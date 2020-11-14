@@ -4,6 +4,7 @@ const MAX_LENGTH = 140;
 const MIN_LENGTH = 30;
 
 var cutResBlocks = [];
+var resBlocks = [];
 
 function isEndSigned(word) {
     return (endSigns.indexOf(word[word.length-1])!=-1);
@@ -22,7 +23,7 @@ function readSentenceBlock(words, wordI) {
     let lastMidSentence = "";
     while (!blockEnds && wordI<words.length) {
         if ("\n".localeCompare(words[wordI])==0) {
-            if (sentence.length>=MIN_LENGTH) {
+            if (sentence.length>0) {
                 return {SENTENCE:sentence.trim(), NEWWORDCOUNT: wordI+1};
             } else {
                 wordI++;
@@ -122,15 +123,26 @@ function cutScript() {
     let block = "";
     let sentence = "";
     let blockI = 0;
-    let resBlocks = [];
     let seconds = 0;
 
     let words = scr.split(' ');
     words = separateNewLine(words);
     let wordCount = 0;
     let blockScriptPos = 0;
+    let lastLength = 0;
     while (wordCount<words.length) {
         let sentenceBlock = readSentenceBlock(words, wordCount);
+        // add short part to long block.
+        if (sentenceBlock.SENTENCE.length<MIN_LENGTH && lastLength>MAX_LENGTH) {
+            resBlocks[blockI-1].text = resBlocks[blockI-1].text + ' ' + sentenceBlock.SENTENCE;
+            blockScriptPos = stepOverBlock(blockScriptPos, sentenceBlock.SENTENCE);
+            resBlocks[blockI-1].endScriptPos = blockScriptPos;
+            wordCount = sentenceBlock.NEWWORDCOUNT;
+            continue;
+        }
+
+        lastLength = sentenceBlock.SENTENCE.length;
+
         wordCount = sentenceBlock.NEWWORDCOUNT;
         let newBlock = {};
         newBlock.text = sentenceBlock.SENTENCE;

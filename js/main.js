@@ -79,6 +79,17 @@ function createHTMLForBlock(ind, blockTime, blockText, blockIndex, blockResText)
 
 
 
+function createOrigBlocks() {
+    el("blocks").innerHTML = "";
+    let newBlocks = "";
+    let ind = 0;
+    blocks.forEach( function(block) {
+        newBlocks = newBlocks + createHTMLForBlock(ind, block.time, block.text, block.index, "");
+        ind++;
+    });
+    el("blocks").innerHTML = newBlocks;
+}
+
 function loadOriginal() {
     blocks = [];
     let original = el("origSBV").value;
@@ -104,14 +115,7 @@ function loadOriginal() {
         blocks.push(block);
     }
 
-    el("blocks").innerHTML = "";
-    let newBlocks = "";
-    let ind = 0;
-    blocks.forEach( function(block) {
-        newBlocks = newBlocks + createHTMLForBlock(ind, block.time, block.text, block.index, "");
-        ind++;
-    });
-    el("blocks").innerHTML = newBlocks;
+    createOrigBlocks();
     SBVloaded = true;
 
 }
@@ -567,9 +571,9 @@ function processBlock(block, nextBlock, prevResBlock = null, debugOn = false) {
     return newBlock;
 }
 
-function createResultSBV(resBlocks) {
+function createResultSBV(resBlocksLoc) {
     resLine = "";
-    resBlocks.forEach(function(block) {
+    resBlocksLoc.forEach(function(block) {
         if (block.time === undefined || block.text === undefined) {
             return;
         }
@@ -603,40 +607,40 @@ function processSBV() {
                     .replace(/  /g, ' ')
                     .split(' ');
     filterEmptySrcWords();
-    let resBlocks = [];
+    let resBlocksLoc = [];
     let bi = 0;
     let scrollTo = -1;
     let blockScriptPos = 0;
     for(bi=0;bi<blocks.length;bi++) {
         let startBlockScriptPos = blockScriptPos;
-        resBlocks[bi] = processBlock(blocks[bi],
+        resBlocksLoc[bi] = processBlock(blocks[bi],
             (bi+1<blocks.length ? blocks[bi+1] : null),
-            (bi>0 ? resBlocks[bi-1] : null));
-            if (resBlocks[bi].nextText.length>0) {
-                console.log("This is transferred: " + resBlocks[bi].nextText);
-            console.log("blcokWordI in next block: " +resBlocks[bi].nextI);
+            (bi>0 ? resBlocksLoc[bi-1] : null));
+            if (resBlocksLoc[bi].nextText.length>0) {
+                console.log("This is transferred: " + resBlocksLoc[bi].nextText);
+            console.log("blcokWordI in next block: " +resBlocksLoc[bi].nextI);
         }
-        if (resBlocks[bi].lostSync) {
+        if (resBlocksLoc[bi].lostSync) {
             scrollTo = bi;
             console.log("Lost synchronization.. Correct sources, and rerun process!");
             break;
         }
-        if (resBlocks[bi].last) {
+        if (resBlocksLoc[bi].last) {
             scrollTo = bi;
             console.log('All script is processed.');
             alert("Whole script is processed!");
             break;
         }
 
-        el("rb"+bi).value = resBlocks[bi].text;
-        resBlocks[bi].startScriptPos = blockScriptPos;
-        blockScriptPos = stepOverBlock(blockScriptPos, resBlocks[bi].text);
-        resBlocks[bi].endScriptPos = blockScriptPos;
-        el("rb"+bi).startScriptPos = resBlocks[bi].startScriptPos;
-        el("rb"+bi).endScriptPos = resBlocks[bi].endScriptPos;
+        el("rb"+bi).value = resBlocksLoc[bi].text;
+        resBlocksLoc[bi].startScriptPos = blockScriptPos;
+        blockScriptPos = stepOverBlock(blockScriptPos, resBlocksLoc[bi].text);
+        resBlocksLoc[bi].endScriptPos = blockScriptPos;
+        el("rb"+bi).startScriptPos = resBlocksLoc[bi].startScriptPos;
+        el("rb"+bi).endScriptPos = resBlocksLoc[bi].endScriptPos;
 
         let wordNoOrig = blocks[bi].text.split(' ').length;
-        let wordNoRes = resBlocks[bi].text.split(' ').length;
+        let wordNoRes = resBlocksLoc[bi].text.split(' ').length;
         let wordNoDiff = Math.abs(wordNoOrig-wordNoRes);
         if (wordNoDiff>0) {
             if (wordNoDiff<=2) {
@@ -654,7 +658,7 @@ function processSBV() {
     }
 
 
-    for(let i=resBlocks.length-1;i<blocks.length;i++) {
+    for(let i=resBlocksLoc.length-1;i<blocks.length;i++) {
         el("rb"+i).style.backgroundColor = "";
         el("b"+i).style.borderRight="5px solid red";
         el("rb"+i).startScriptPos = -1;
@@ -667,7 +671,7 @@ function processSBV() {
         scrollTo--;
     }
     el("blocks").scrollTop = el("ob"+scrollTo).offsetTop - el("blocks").offsetTop;
-    createResultSBV(resBlocks);
+    createResultSBV(resBlocksLoc);
 }
 
 
@@ -701,7 +705,7 @@ function loadTranslatedBlocks() {
             return;
         }
     }
-    resBlocks = [];
+    resBlocksLoc = [];
     let original = el("script").value;
     let arrayOfLines = original.match(/[^\r\n]+/g);
     let bi = 0;
@@ -719,11 +723,11 @@ function loadTranslatedBlocks() {
         block.text = text;
         block.index = bi;
         bi = bi + 1;
-        resBlocks.push(block);
+        resBlocksLoc.push(block);
     }
 
     let ind = 0;
-    resBlocks.forEach( function(block) {
+    resBlocksLoc.forEach( function(block) {
         el('rb'+ind).value = block.text;
         ind++;
     });

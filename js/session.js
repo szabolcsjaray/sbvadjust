@@ -3,6 +3,7 @@ const ORIG_SBV = "origsbv";
 const SCRIPT = "script";
 const ORIGBLOCKS = "origblocks";
 const RESBLOCKS = "resblocks";
+const TIMINGS = "timings";
 const PROCESSEDBLOCKS = "processedblocks";
 
 function sessionSave() {
@@ -20,6 +21,12 @@ function sessionSave() {
             resBlocks.push(el("rb"+i).value);
         }
         localStorage.setItem(SBV_SPACE+"/"+RESBLOCKS, JSON.stringify(resBlocks));
+        let timings = [];
+        for(let i=0;i<blocks.length;i++) {
+            timings.push(el("ot"+i).innerHTML);
+        }
+        localStorage.setItem(SBV_SPACE+"/"+TIMINGS, JSON.stringify(timings));
+
     }
 }
 
@@ -29,14 +36,18 @@ function sessionLoad() {
         el("origSBV").value = localStorage.getItem(SBV_SPACE+"/"+ORIG_SBV);
         el("script").value = localStorage.getItem(SBV_SPACE+"/"+SCRIPT);
         let origBlocks = JSON.parse(localStorage.getItem(SBV_SPACE+"/"+ORIGBLOCKS));
-        loadOriginal();
-        for(let i=0;i<blocks.length;i++) {
-            el("ob"+i).value = origBlocks[i];
-        }
         let resBlocks = JSON.parse(localStorage.getItem(SBV_SPACE+"/"+RESBLOCKS));
-        for(let i=0;i<blocks.length;i++) {
+        let timings = JSON.parse(localStorage.getItem(SBV_SPACE+"/"+TIMINGS));
+        //loadOriginal();
+        blocks = [];
+        for(let i=0;i<origBlocks.length;i++) {
+            blocks[i] = { "time" : timings[i], "text" : origBlocks[i], "index" : i};
+        }
+        createOrigBlocks();
+        for(let i=0;i<origBlocks.length;i++) {
             el("rb"+i).value = resBlocks[i];
         }
+
         refreshBlocksFromScreen();
         refreshResultSBV();
     }
