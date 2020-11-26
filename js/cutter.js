@@ -1,3 +1,4 @@
+// 1.01
 const endSigns = ".!?";
 const midSigns = ",;:-()";
 const MAX_LENGTH = 140;

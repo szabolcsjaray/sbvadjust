@@ -1,3 +1,4 @@
+// 1.01
 function saveResultSBV() {
     let textToWrite = el("resultSBV").value;
     let textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
@@ -24,7 +25,10 @@ function loadOrigSBVFileClick() {
 
 function loadOrigSBVFile() {
     const reader = new FileReader();
-    reader.onload = event => el('origSBV').value = event.target.result;
+    reader.onload = event => {
+        el('origSBV').value = event.target.result;
+        el('origSBV').title = "Original SBV file: " + el("origFileSelect").value.split(/(\\|\/)/g).pop();
+    }
     reader.onerror = error => reject(error);
     if (el("origFileSelect").files.length>0) {
         reader.readAsText(el("origFileSelect").files[0]);
@@ -37,7 +41,10 @@ function loadScriptClick() {
 
 function loadScriptFile() {
     const reader = new FileReader();
-    reader.onload = event => el('script').value = event.target.result;
+    reader.onload = event => {
+        el('script').value = event.target.result;
+        el('scriptTitle').innerHTML = "Script area: " + el("scriptFileSelect").value.split(/(\\|\/)/g).pop();
+    }
     reader.onerror = error => reject(error);
     if (el("scriptFileSelect").files.length>0) {
         reader.readAsText(el("scriptFileSelect").files[0]);

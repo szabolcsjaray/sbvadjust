@@ -1,3 +1,4 @@
+// 1.01
 var blocks = [];
 var scrcontent;
 var processedWords = 0;
@@ -60,12 +61,12 @@ function el(id) {
 function createHTMLForBlock(ind, blockTime, blockText, blockIndex, blockResText) {
     return "            <div class=\"block\" id=\"b"+ind+"\">"+
     (ind+1) + ". Time: <p id=\"ot"+ind+"\">"+ blockTime +"</p><br>" +
-    "<textarea id=\"ob"+ind+"\" class=\"blockText\" title=\"Original SBV block\""+
+    "<textarea id=\"ob"+ind+"\" class=\"blockText\" "+
     "onchange=\"refreshBlocksFromScreen();\" onclick=\"selectBlock("+ind+");\"" +
     ">"+
     blockText+
     "</textarea>"+
-    "<textarea id=\"rb"+ind+"\" class=\"blockText resultBlock\" title=\"Result SBV block\""+
+    "<textarea id=\"rb"+ind+"\" class=\"blockText resultBlock\" "+
     "onchange=\"refreshResultSBV();\"" +
     ">"+blockResText+"</textarea>" +
     "<div style=\"display:inline-block;width:3%;height:40px;position:relative;\">"+
@@ -157,12 +158,30 @@ function refreshBlocksFromScreen() {
     }
 }
 
+const GOOD_FOR_ONE_LINE_LENGTH = 50;
+
 function refreshResultSBV() {
     let resLine = "";
     for(let i=0;i<blocks.length;i++) {
         let line = el("rb"+i).value.trim();
+        let lines = [line];
+
+        if (line.length>GOOD_FOR_ONE_LINE_LENGTH) {
+            let half = line.length/2;
+            for(let li = half;li<line.length;li++) {
+                if (line.charAt(li)==' ') {
+                    lines[0] = line.substr(0,li);
+                    lines[1] = line.substr(li);
+                    break;
+                }
+            }
+        }
         if (line.length>0) {
-            resLine = resLine + blocks[i].time + "\n" + line + "\n\n";
+            resLine = resLine + blocks[i].time + "\n";
+            for (let lpi=0;lpi<lines.length;lpi++) {
+                resLine += lines[lpi].trim() + "\n";
+            }
+            resLine += "\n";
         }
     }
     el("resultSBV").value = resLine;

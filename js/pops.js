@@ -1,3 +1,4 @@
+// 1.01
 function help() {
     el('helpContainer').style.display = 'block';
 }
