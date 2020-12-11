@@ -1,4 +1,4 @@
-// 1.01
+// 1.02
 //load the IFrame Player API code asynchronously
 var player;
 var timingBlock = 0;
@@ -57,14 +57,22 @@ function nextBlock(time) {
         el('rb'+(timingBlock-1)).style.backgroundColor = 'blanchedalmond';
         refreshTime(timingBlock-1);
     }
-    el('ob'+timingBlock).style.backgroundColor = '#7ad8d4';
-    el("blocks").scrollTop = el("ob"+timingBlock).offsetTop - el("blocks").offsetTop - 20;
+    highlightBlock(timingBlock);
     timingBlock++;
     if (timingBlock>=cutResBlocks.length) {
         player.stopVideo();
         phase = TIMING_STOPPED;
     }
     phase = TIMING_IN_BLOCK;
+}
+
+function unHighlightBlock(blockI) {
+    el('ob'+(blockI)).style.backgroundColor = 'blanchedalmond';
+}
+
+function highlightBlock(blockI) {
+    el('ob' + blockI).style.backgroundColor = '#7ad8d4';
+    el("blocks").scrollTop = el("ob" + blockI).offsetTop - el("blocks").offsetTop - 20;
 }
 
 function endBlock(time) {
@@ -106,7 +114,7 @@ function addKeyListener() {
     } else if (event.code=='KeyM') {
         endBlock(player.getCurrentTime());
     } else if (event.code=='KeyQ') {
-        createResultSBV(cutResBlocks);
+        refreshResultSBV(cutResBlocks);
     } else if (event.code=='KeyL') {
         pauseTiming();
     } else if (event.code=='KeyR') {

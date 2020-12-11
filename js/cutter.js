@@ -1,4 +1,4 @@
-// 1.01
+// 1.02
 const endSigns = ".!?";
 const midSigns = ",;:-()";
 const MAX_LENGTH = 140;
@@ -167,5 +167,6 @@ function cutScript() {
 
     putresBlockOnScreen(resBlocks);
     createResultSBV(resBlocks);
+    refreshResultSBV();
     cutResBlocks = resBlocks.slice();
 }

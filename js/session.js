@@ -1,4 +1,4 @@
-// 1.01
+// 1.02
 const SBV_SPACE = "sbvadjust";
 const ORIG_SBV = "origsbv";
 const SCRIPT = "script";
@@ -51,5 +51,6 @@ function sessionLoad() {
 
         refreshBlocksFromScreen();
         refreshResultSBV();
+        SBVloaded = true;
     }
 }
