@@ -1,4 +1,4 @@
-// 1.02
+// 1.03
 var blocks = [];
 var scrcontent;
 var processedWords = 0;
@@ -63,13 +63,13 @@ function el(id) {
 function createHTMLForBlock(ind, blockTime, blockText, blockIndex, blockResText) {
     return "            <div class=\"block\" id=\"b"+ind+"\">"+
     (ind+1) + ". Time: <p id=\"ot"+ind+"\">"+ blockTime +"</p><br>" +
-    "<textarea id=\"ob"+ind+"\" class=\"blockText\" "+
+    "<textarea id=\"ob"+ind+"\" class=\"blockText\""+
     "onchange=\"refreshBlocksFromScreen();\" onclick=\"selectBlock("+ind+");\"" +
     ">"+
     blockText+
     "</textarea>"+
     "<textarea id=\"rb"+ind+"\" class=\"blockText resultBlock\" "+
-    "onchange=\"refreshResultSBV();\"" +
+    "onchange=\"refreshResultSBV();\"  onkeyup=\"blockEdited("+ind+");\"" +
     ">"+blockResText+"</textarea>" +
     "<div style=\"display:inline-block;width:3%;height:40px;position:relative;\">"+
     "<img class=\"icon\" src=\"pics/target.png\" style=\"width:100%;position:absolute;top:-40px;\""+
@@ -95,7 +95,8 @@ function createOrigBlocks() {
     el("blocks").innerHTML = newBlocks;
 }
 
-function loadOriginal() {
+function loadOriginal(id) {
+    checkWizard(id);
     blocks = [];
     let original = el("origSBV").value;
     let arrayOfLines = original.match(/[^\r\n]+/g);
@@ -661,7 +662,9 @@ function filterEmptySrcWords() {
     }
 }
 
-function processSBV() {
+function processSBV(id) {
+    checkWizard(id);
+
     if (!SBVloaded) {
         loadOriginal();
     }
@@ -765,7 +768,8 @@ function changeOnlyRed() {
 }
 
 
-function loadTranslatedBlocks() {
+function loadTranslatedBlocks(id) {
+    checkWizard(id);
     if (blocks.length==0) {
         if (SBVloaded) {
             loadOriginal();

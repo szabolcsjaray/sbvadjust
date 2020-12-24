@@ -1,4 +1,4 @@
-// 1.02
+// 1.03
 //load the IFrame Player API code asynchronously
 var player;
 var timingBlock = 0;
@@ -127,7 +127,8 @@ function addKeyListener() {
 
 const VIDEO_ADDRESS_TEMPLATE = "http://www.youtube.com/embed/VIDEOID?rel=0&amp;controls=0&amp;hd=1&amp;showinfo=0&amp;enablejsapi=1"
 
-function loadVideo() {
+function loadVideo(id) {
+    checkWizard(id);
     let videoId = el("videoID").value;
     if (videoId.startsWith('http')) {
         let idPart  = videoId.search('v=');

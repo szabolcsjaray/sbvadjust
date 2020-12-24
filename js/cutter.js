@@ -1,4 +1,4 @@
-// 1.02
+// 1.03
 const endSigns = ".!?";
 const midSigns = ",;:-()";
 const MAX_LENGTH = 140;
@@ -119,7 +119,8 @@ function generateTimestamp(seconds, seconds1) {
         (secs1<10? "0" : "") + secs1 + "." + frac1.toString().padStart(3, "0");
 }
 
-function cutScript() {
+function cutScript(id) {
+    checkWizard(id);
     let scr = el("script").value;
     let block = "";
     let sentence = "";
@@ -169,4 +170,24 @@ function cutScript() {
     createResultSBV(resBlocks);
     refreshResultSBV();
     cutResBlocks = resBlocks.slice();
+}
+
+function blockEdited(ind) {
+    if (actualOp!=NEW_SUBS) {
+        return;
+    }
+    /*alert('block edit:' + ind + ", "+resBlocks[ind].text + '\n' + resBlocks[ind].startScriptPos + '-' + resBlocks[ind].endScriptPos +
+        '\n-----\n'+el('script').value.substr(resBlocks[ind].startScriptPos, resBlocks[ind].endScriptPos-resBlocks[ind].startScriptPos) +'\n new text:'+
+        el('ob'+ind).value);*/
+    let pos = el('rb'+ind).selectionStart;
+    el('script').value = el('script').value.substr(0,resBlocks[ind].startScriptPos) +
+            el('rb'+ind).value + ' ' +
+            el('script').value.substr(resBlocks[ind].endScriptPos);
+    cutScript(-1);
+    if (el('rb'+ind)!=undefined && el('rb'+ind)!=null) {
+        el('rb'+ind).focus();
+        el('rb'+ind).selectionStart = pos;
+    } else {
+        el('rb'+ind-1).focus();
+    }
 }

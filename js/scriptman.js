@@ -1,4 +1,4 @@
-// 1.01
+// 1.02
 
 var lastScript = "";
 var backEditing = false;
@@ -12,7 +12,8 @@ function newScriptValue(scr) {
     lastScript = scr;
 }
 
-function restoreScriptFromBlocks() {
+function restoreScriptFromBlocks(id) {
+    checkWizard(id);
     let i = 0;
     let blockEl = el("ob"+i);
     let script = "";

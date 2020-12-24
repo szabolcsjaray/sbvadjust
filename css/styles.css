@@ -1,4 +1,4 @@
-/* 1.01 */
+/* 1.02 */
 body {
     background-color: #c0c5df;
     overflow: auto;
@@ -199,4 +199,7 @@ p#stopped {
     bottom: 3px;
     width: 100%;
     font-size: 15px;
+}
+.highlight {
+    background-color: rgb(255, 235, 169);
 }

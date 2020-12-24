@@ -1,5 +1,6 @@
-// 1.01
-function saveResultSBV() {
+// 1.02
+function saveResultSBV(id) {
+    checkWizard(id);
     let textToWrite = el("resultSBV").value;
     let textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
     let downloadLink = document.createElement("a");
@@ -19,7 +20,8 @@ function saveResultSBV() {
     downloadLink.click();
 }
 
-function loadOrigSBVFileClick() {
+function loadOrigSBVFileClick(id) {
+    checkWizard(id);
     el("origFileSelect").click();
 }
 
@@ -35,7 +37,8 @@ function loadOrigSBVFile() {
     }
 }
 
-function loadScriptClick() {
+function loadScriptClick(id) {
+    checkWizard(id);
     el("scriptFileSelect").click();
 }
 
