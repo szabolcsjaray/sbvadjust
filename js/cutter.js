@@ -1,4 +1,4 @@
-// 1.03
+// 1.05
 const endSigns = ".!?";
 const midSigns = ",;:-()";
 const MAX_LENGTH = 140;
@@ -15,6 +15,11 @@ function isMidSigned(word) {
     return (midSigns.indexOf(word[word.length-1])!=-1);
 }
 
+function isNamePiece(word) {
+    return (word.length==2 && word[1]=='.') ||
+        ('DR.'.localeCompare(word.toUpperCase())==0);
+}
+
 function readSentenceBlock(words, wordI) {
     let sentence = "";
     let blockEnds = false;
@@ -28,6 +33,9 @@ function readSentenceBlock(words, wordI) {
                 return {SENTENCE:sentence.trim(), NEWWORDCOUNT: wordI+1};
             } else {
                 wordI++;
+                if (wordI>=words.length) {
+                    break;
+                }
                 if (sentence.length!=0 && sentence[sentence.length-1]!=' ') {
                     sentence = sentence + ' ';
                     continue;
@@ -43,7 +51,7 @@ function readSentenceBlock(words, wordI) {
         }
         sentence = sentence + sep + words[wordI];
         if (words[wordI].length>0) {
-            if (isEndSigned(words[wordI])) {
+            if (isEndSigned(words[wordI]) && !isNamePiece(words[wordI])) {
                 if (sentence.length>=MIN_LENGTH) {
                     return {SENTENCE:sentence.trim(), NEWWORDCOUNT: wordI+1};
                 }
@@ -134,6 +142,10 @@ function cutScript(id) {
     let lastLength = 0;
     while (wordCount<words.length) {
         let sentenceBlock = readSentenceBlock(words, wordCount);
+        if (sentenceBlock.SENTENCE.length==0) {
+            wordCount = sentenceBlock.NEWWORDCOUNT;
+            continue;
+        }
         // add short part to long block.
         if (sentenceBlock.SENTENCE.length<MIN_LENGTH && lastLength>MAX_LENGTH) {
             resBlocks[blockI-1].text = resBlocks[blockI-1].text + ' ' + sentenceBlock.SENTENCE;
@@ -164,6 +176,9 @@ function cutScript(id) {
         newBlock.endScriptPos = blockScriptPos;
         resBlocks[blockI] = newBlock;
         blockI++;
+    }
+    if (resBlocks.length>blockI) {
+        resBlocks.splice(blockI, resBlocks.length-blockI);
     }
 
     putresBlockOnScreen(resBlocks);
