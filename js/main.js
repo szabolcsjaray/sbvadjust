@@ -1,4 +1,4 @@
-// 1.03
+// 1.04
 var blocks = [];
 var scrcontent;
 var processedWords = 0;
@@ -71,7 +71,9 @@ function createHTMLForBlock(ind, blockTime, blockText, blockIndex, blockResText)
     "<textarea id=\"rb"+ind+"\" class=\"blockText resultBlock\" "+
     "onchange=\"refreshResultSBV();\"  onkeyup=\"blockEdited("+ind+");\"" +
     ">"+blockResText+"</textarea>" +
-    "<div style=\"display:inline-block;width:3%;height:40px;position:relative;\">"+
+    "<div style=\"display:inline-block;width:3%;height:20px;position:relative;top:28px;\">"+
+    "<img class=\"icon addIcons\" src=\"pics/plus.png\" title=\"Add missing words.\""+
+    " onclick=\"addWords("+blockIndex+")\" style=\"width:100%;position:absolute;top:-70px;\"><br>"+
     "<img class=\"icon\" src=\"pics/target.png\" style=\"width:100%;position:absolute;top:-40px;\""+
         " title=\"Locate the block in the script.\" onclick=\"findBlock("+blockIndex+")\"/><br>" +
     "<img class=\"icon\" src=\"pics/play.png\" style=\"width:100%;top:-15px;position:absolute;\""+
@@ -138,6 +140,14 @@ function mergeBoxes() {
     for(let i = 0;i<blocks.length;i+=2) {
         if (i+1<blocks.length) {
             let starttime = getStartTime(blocks[i].time);
+            if (getEndTime(blocks[i].time)<getStartTime(blocks[i+1].time)) {
+                // just copy the original block, no merge, if separate blocks
+                blocks[j].text = blocks[i].text;
+                blocks[j].time = blocks[i].time;
+                j++;
+                i = i-1; //only step one forward inthis case
+                continue;
+            }
             let endtime = getEndTime(blocks[i+1].time);
             if (i+2<blocks.length) {
                 let startTime_2;
@@ -206,6 +216,30 @@ function refreshBlocksFromScreen() {
 
 const GOOD_FOR_ONE_LINE_LENGTH = 50;
 
+const afterWord = ' .,:?!\'';
+
+const wordsToCheck = [['mars', 'Mars'],
+               ['earth', 'Earth'],
+               ['venus', 'Venus'],
+               ['moon', 'Moon']
+            ];
+
+function checkWords(str) {
+    let newStr = str
+    for(pair of wordsToCheck) {
+        newStr = replaceWord(newStr, pair[0], pair[1]);
+    }
+    return newStr;
+}
+
+function replaceWord(str, from, to) {
+    let newStr = str;
+    for(ch of afterWord) {
+        newStr = newStr.replaceAll(' '+from+ch, ' '+to+ch);
+    }
+    return newStr;
+}
+
 function refreshResultSBV() {
     let resLine = "";
     let i = 0;
@@ -234,6 +268,7 @@ function refreshResultSBV() {
         i++;
         lineEl = el("rb"+i);
     }
+    resLine = checkWords(resLine);
     el("resultSBV").value = resLine;
 }
 
@@ -805,4 +840,55 @@ function loadTranslatedBlocks(id) {
         ind++;
     });
     refreshResultSBV();
+}
+
+function addWords(blockI) {
+    let orig = el('ob'+blockI).value;
+    let result = el('rb'+blockI).value;
+    let origA = orig.split(' ');
+    let resA = result.split(' ');
+    console.log("before");
+    console.log(origA.join(' '));
+    console.log(resA.join(' '));
+    let origI = 0;
+    let resI = 0;
+    while (origI<origA.length) {
+
+        while (origI<origA.length && resI<resA.length && wmatches(origA[origI], resA[resI])!=DIFFERENT) {
+            origI++;
+            resI++;
+        }
+        console.log("o:" + origI + ", r:" + resI);
+        if (origI<origA.length) {
+            resA.splice(resI, 0, origA[origI]);
+            resI++;
+            origI++;
+        }
+        console.log("Added and o:" + origI + ", r:" + resI);
+    }
+    let diff = resA.join(' ').length - el('rb'+blockI).value.length;
+    let ok = confirm("Auto: \n"+ origA.join(' ') +
+        "\n After:\n"+ resA.join(' ') +
+        "\n(before:\n"+ el('rb'+blockI).value +
+        "\n diff:" + diff + ")");
+    if (ok) {
+        el('rb'+blockI).value = resA.join(' ');
+        let scr = el("script").value;
+        let newScr = scr.substring(0, el('rb'+blockI).startScriptPos) + resA.join(' ') +
+            ' ' + scr.substring(el('rb'+blockI).endScriptPos);
+        el("script").value = newScr;
+        el('rb'+blockI).endScriptPos += diff;
+        let i = blockI+1;
+        let bl = el('rb'+i);
+        while( bl!=null) {
+            if (bl.startScriptPos!=null) {
+                bl.startScriptPos += diff;
+            }
+            if ( bl.endScriptPos!=null) {
+                bl.endScriptPos += diff;
+            }
+            i++;
+            bl = el('rb'+i);
+        }
+    }
 }

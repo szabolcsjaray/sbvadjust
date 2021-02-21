@@ -1,4 +1,4 @@
-// 1.03
+// 1.04
 const endSigns = ".!?";
 const midSigns = ",;:-()";
 const MAX_LENGTH = 140;
@@ -28,6 +28,9 @@ function readSentenceBlock(words, wordI) {
                 return {SENTENCE:sentence.trim(), NEWWORDCOUNT: wordI+1};
             } else {
                 wordI++;
+                if (wordI>=words.length) {
+                    break;
+                }
                 if (sentence.length!=0 && sentence[sentence.length-1]!=' ') {
                     sentence = sentence + ' ';
                     continue;
@@ -134,6 +137,10 @@ function cutScript(id) {
     let lastLength = 0;
     while (wordCount<words.length) {
         let sentenceBlock = readSentenceBlock(words, wordCount);
+        if (sentenceBlock.SENTENCE.length==0) {
+            wordCount = sentenceBlock.NEWWORDCOUNT;
+            continue;
+        }
         // add short part to long block.
         if (sentenceBlock.SENTENCE.length<MIN_LENGTH && lastLength>MAX_LENGTH) {
             resBlocks[blockI-1].text = resBlocks[blockI-1].text + ' ' + sentenceBlock.SENTENCE;

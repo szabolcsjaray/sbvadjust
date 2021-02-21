@@ -1,3 +1,4 @@
+# ver 1.00
 import sys
 import os
 
@@ -14,6 +15,7 @@ def timestr(time):
     return tstr
 
 
+print('Usage: shift.py <sbv file> <millisecs to shift> [<from this text block (end timestamp of last, not shifted text block)>]')
 ts = int(sys.argv[2])
 if (len(sys.argv)>3):
     after = sys.argv[3]
@@ -22,7 +24,6 @@ else:
     checkAfter = False
 
 weAreAfter = False
-print('Usage: shift.py <sbv file> <millisecs to shift> [<from this text block (end timestamp of last, not shifted text block)>]')
 print('sbv file:' + sys.argv[1])
 print('Result file: '+ sys.argv[1].replace(".sbv", "")+'_shift.sbv')
 print('Shift by: ' + str(ts) + " ms")

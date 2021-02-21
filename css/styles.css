@@ -1,4 +1,4 @@
-/* 1.02 */
+/* 1.03 */
 body {
     background-color: #c0c5df;
     overflow: auto;
@@ -45,7 +45,7 @@ textarea {
 textarea.blockText {
     background-color: blanchedalmond;
     width: 47%;
-    height: 63px;
+    height: 75px;
 }
 textarea.resultBlock {
     background-color: white;
