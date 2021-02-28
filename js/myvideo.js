@@ -1,4 +1,4 @@
-// 1.03
+// 1.04
 //load the IFrame Player API code asynchronously
 var player;
 var timingBlock = 0;
@@ -30,6 +30,22 @@ function pauseVideo() {
 }
 function startVideo() {
     player.playVideo();
+}
+
+var rate = 1;
+
+function changeSpeed() {
+    if (rate==1) {
+        rate=1.5;
+        el('speedButton').innerHTML='>> 2x speed';
+    } else if(rate==1.5) {
+        rate=2;
+        el('speedButton').innerHTML='>> 1x speed';
+    } else {
+        rate=1;
+        el('speedButton').innerHTML='>> 1.5x speed';
+    }
+    player.setPlaybackRate(rate);
 }
 
 function selectBlock(bi) {
@@ -101,6 +117,14 @@ function restartTiming() {
     }
 }
 
+function enterListenerForVideoAddress() {
+    el('videoID').addEventListener("keydown", event => {
+        if (event.code=='Enter') {
+            loadVideo('loadVideoButton');
+        }
+    });
+}
+
 function addKeyListener() {
     el('keyInput').addEventListener("keydown", event => {
     if (event.code=='KeyA') {
@@ -125,7 +149,7 @@ function addKeyListener() {
   });
 }
 
-const VIDEO_ADDRESS_TEMPLATE = "http://www.youtube.com/embed/VIDEOID?rel=0&amp;controls=0&amp;hd=1&amp;showinfo=0&amp;enablejsapi=1"
+const VIDEO_ADDRESS_TEMPLATE = "http://www.youtube.com/embed/VIDEOID?rel=0&amp;controls=1&amp;hd=1&amp;showinfo=1&amp;enablejsapi=1"
 
 function loadVideo(id) {
     checkWizard(id);

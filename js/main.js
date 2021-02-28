@@ -1,4 +1,4 @@
-// 1.04
+// 1.05
 var blocks = [];
 var scrcontent;
 var processedWords = 0;
@@ -13,6 +13,7 @@ function init() {
     let url = new URL(window.location.href);
     initVideo();
     addKeyListener();
+    enterListenerForVideoAddress();
     actualOp = TRANSLATION;
     el('operation').selectedIndex = actualOp;
     showAndHideControls();
