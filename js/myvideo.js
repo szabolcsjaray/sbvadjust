@@ -1,4 +1,4 @@
-// 1.04
+// 1.05
 //load the IFrame Player API code asynchronously
 var player;
 var timingBlock = 0;
@@ -65,21 +65,27 @@ function refreshTime(bi) {
 }
 
 function nextBlock(time) {
-    cutResBlocks[timingBlock].startTime = time;
-    refreshTime(timingBlock);
+    console.log("enter:" + timingBlock +"("+cutResBlocks.length+")");
+    if (timingBlock<cutResBlocks.length) {
+        cutResBlocks[timingBlock].startTime = time;
+        refreshTime(timingBlock);
+        highlightBlock(timingBlock);
+    }
     if (timingBlock>0 && phase!=TIMING_STOPPED) {
         cutResBlocks[timingBlock-1].endTime = time;
         el('ob'+(timingBlock-1)).style.backgroundColor = 'blanchedalmond';
         el('rb'+(timingBlock-1)).style.backgroundColor = 'blanchedalmond';
         refreshTime(timingBlock-1);
     }
-    highlightBlock(timingBlock);
     timingBlock++;
-    if (timingBlock>=cutResBlocks.length) {
+    if (timingBlock>cutResBlocks.length) {
         player.stopVideo();
+        console.log("end:" + timingBlock +"("+cutResBlocks.length+")");
         phase = TIMING_STOPPED;
+        refreshResultSBV(cutResBlocks);
+    } else {
+        phase = TIMING_IN_BLOCK;
     }
-    phase = TIMING_IN_BLOCK;
 }
 
 function unHighlightBlock(blockI) {

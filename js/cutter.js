@@ -1,4 +1,4 @@
-// 1.05
+// 1.06
 const endSigns = ".!?";
 const midSigns = ",;:-()";
 const MAX_LENGTH = 140;
@@ -17,7 +17,8 @@ function isMidSigned(word) {
 
 function isNamePiece(word) {
     return (word.length==2 && word[1]=='.') ||
-        ('DR.'.localeCompare(word.toUpperCase())==0);
+        ('DR.'.localeCompare(word.toUpperCase())==0) ||
+        ('MR.'.localeCompare(word.toUpperCase())==0);
 }
 
 function readSentenceBlock(words, wordI) {

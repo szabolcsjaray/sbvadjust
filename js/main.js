@@ -1,4 +1,4 @@
-// 1.05
+// 1.07
 var blocks = [];
 var scrcontent;
 var processedWords = 0;
@@ -250,13 +250,39 @@ function refreshResultSBV() {
         let lines = [line];
 
         if (line.length>GOOD_FOR_ONE_LINE_LENGTH) {
-            let half = line.length/2;
+            let half = Math.round(line.length/2);
+            halfFound = false;
             for(let li = half;li<line.length;li++) {
                 if (line.charAt(li)==' ') {
                     lines[0] = line.substr(0,li);
                     lines[1] = line.substr(li);
+                    halfFound = true;
                     break;
                 }
+            }
+            if (!halfFound) {
+                for(let li = half;li>0;li--) {
+                    if (line.charAt(li)==' ') {
+                        lines[0] = line.substr(0,li);
+                        lines[1] = line.substr(li);
+                        halfFound = true;
+                        break;
+                    }
+                }
+            }
+            if (!halfFound) {
+                lines[0] = line.substr(0,half);
+                lines[1] = line.substr(half);
+            }
+            
+            if (lines[0].length>57 || lines[1].length>57) {
+                let third = Math.round(line.length/3);
+                let twothird = Math.round(line.length*2/3);
+                let firstSpace = line.indexOf(' ', third);
+                let secondSpace = line.indexOf(' ', twothird);
+                lines[0] = line.substr(0,firstSpace);
+                lines[1] = line.substr(firstSpace+1, secondSpace-firstSpace-1);
+                lines[2] = line.substr(secondSpace+1);
             }
         }
         if (line.length>0) {

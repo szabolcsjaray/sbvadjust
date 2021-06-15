@@ -1,4 +1,4 @@
-// 1.01
+// 1.02
 function help() {
     el('helpContainer').style.display = 'block';
 }
@@ -14,5 +14,10 @@ function closePop() {
 function popThis(textAreaId) {
     el('popContainer').style.display = 'block';
     el('popTextArea').value = el(textAreaId).value;
+    if (textAreaId=='resultSBV') {
+        el('popSave').style.display = 'inline-block';
+    } else {
+        el('popSave').style.display = 'none';
+    }
 }
 
