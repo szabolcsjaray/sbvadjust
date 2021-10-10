@@ -1,4 +1,4 @@
-// 1.02
+// 1.03
 const SBV_SPACE = "sbvadjust";
 const ORIG_SBV = "origsbv";
 const SCRIPT = "script";
@@ -6,39 +6,51 @@ const ORIGBLOCKS = "origblocks";
 const RESBLOCKS = "resblocks";
 const TIMINGS = "timings";
 const PROCESSEDBLOCKS = "processedblocks";
+const VIDEOLINK = "videolink";
 
-function sessionSave() {
-    let ok = confirm("This will overwrite the session already saved in browser. Ok?");
+function sessionSave(auto = false) {
+    let ok = auto;
+    if (!auto) {
+        ok = confirm("This will overwrite the session already saved in browser. Ok?");
+    }
     if (ok) {
-        localStorage.setItem(SBV_SPACE+"/"+ORIG_SBV, el("origSBV").value);
-        localStorage.setItem(SBV_SPACE+"/"+SCRIPT, el("script").value);
+        autoFolder = (auto ? "/auto" : "");
+        space = SBV_SPACE + autoFolder;
+        localStorage.setItem(space+"/"+ORIG_SBV, el("origSBV").value);
+        localStorage.setItem(space+"/"+SCRIPT, el("script").value);
         let origBlocks = [];
         for(let i=0;i<blocks.length;i++) {
             origBlocks.push(el("ob"+i).value);
         }
-        localStorage.setItem(SBV_SPACE+"/"+ORIGBLOCKS, JSON.stringify(origBlocks));
+        localStorage.setItem(space+"/"+ORIGBLOCKS, JSON.stringify(origBlocks));
         let resBlocks = [];
         for(let i=0;i<blocks.length;i++) {
             resBlocks.push(el("rb"+i).value);
         }
-        localStorage.setItem(SBV_SPACE+"/"+RESBLOCKS, JSON.stringify(resBlocks));
+        localStorage.setItem(space+"/"+RESBLOCKS, JSON.stringify(resBlocks));
         let timings = [];
         for(let i=0;i<blocks.length;i++) {
             timings.push(el("ot"+i).innerHTML);
         }
-        localStorage.setItem(SBV_SPACE+"/"+TIMINGS, JSON.stringify(timings));
-
+        localStorage.setItem(space+"/"+TIMINGS, JSON.stringify(timings));
+        localStorage.setItem(space+"/"+VIDEOLINK, el("videoID").value);
     }
 }
 
-function sessionLoad() {
-    let ok = confirm("This will overwrite the site text fields with the saved session content. Ok?");
+function sessionLoad(auto = false) {
+    let ok = auto;
+    if (!auto) {
+        ok = confirm("This will overwrite the site text fields with the saved session content. Ok?");
+    }
     if (ok) {
-        el("origSBV").value = localStorage.getItem(SBV_SPACE+"/"+ORIG_SBV);
-        el("script").value = localStorage.getItem(SBV_SPACE+"/"+SCRIPT);
-        let origBlocks = JSON.parse(localStorage.getItem(SBV_SPACE+"/"+ORIGBLOCKS));
-        let resBlocks = JSON.parse(localStorage.getItem(SBV_SPACE+"/"+RESBLOCKS));
-        let timings = JSON.parse(localStorage.getItem(SBV_SPACE+"/"+TIMINGS));
+        autoFolder = (auto ? "/auto" : "");
+        space = SBV_SPACE + autoFolder;
+        el("origSBV").value = localStorage.getItem(space+"/"+ORIG_SBV);
+        el("script").value = localStorage.getItem(space+"/"+SCRIPT);
+        el("videoID").value = localStorage.getItem(space+"/"+VIDEOLINK);
+        let origBlocks = JSON.parse(localStorage.getItem(space+"/"+ORIGBLOCKS));
+        let resBlocks = JSON.parse(localStorage.getItem(space+"/"+RESBLOCKS));
+        let timings = JSON.parse(localStorage.getItem(space+"/"+TIMINGS));
         //loadOriginal();
         blocks = [];
         for(let i=0;i<origBlocks.length;i++) {

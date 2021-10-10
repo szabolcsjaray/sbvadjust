@@ -1,4 +1,4 @@
-// 1.05
+// 1.06
 //load the IFrame Player API code asynchronously
 var player;
 var timingBlock = 0;
@@ -37,13 +37,13 @@ var rate = 1;
 function changeSpeed() {
     if (rate==1) {
         rate=1.5;
-        el('speedButton').innerHTML='>> 2x speed';
+        el('speedButton').innerHTML='1x [1.5x] 2x';
     } else if(rate==1.5) {
         rate=2;
-        el('speedButton').innerHTML='>> 1x speed';
+        el('speedButton').innerHTML='1x 1.5x [2x]';
     } else {
         rate=1;
-        el('speedButton').innerHTML='>> 1.5x speed';
+        el('speedButton').innerHTML='[1x] 1.5x 2x';
     }
     player.setPlaybackRate(rate);
 }

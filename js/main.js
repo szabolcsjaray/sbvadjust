@@ -1,4 +1,4 @@
-// 1.07
+// 1.08
 var blocks = [];
 var scrcontent;
 var processedWords = 0;
@@ -11,7 +11,9 @@ function printTestStr(str) {
 
 function init() {
     let url = new URL(window.location.href);
+    sessionLoad(true);
     initVideo();
+    loadVideo(el("videoID").value);
     addKeyListener();
     enterListenerForVideoAddress();
     actualOp = TRANSLATION;
@@ -19,6 +21,10 @@ function init() {
     showAndHideControls();
     el('origFileSelect').addEventListener('change', loadOrigSBVFile);
     el('scriptFileSelect').addEventListener('change', loadScriptFile);
+    window.addEventListener("beforeunload", function(event) {
+        sessionSave(true);
+    });
+
     if (url.searchParams.get('test')) {
         console.log(getRidOffMarks("Iti!?;"));
         console.log(getRidOffMarks("Itiner"));
@@ -47,7 +53,6 @@ function init() {
 
         //alert(res.text);
     }
-    //alert("yo");
 }
 
 function blockToStr(block) {
@@ -274,7 +279,7 @@ function refreshResultSBV() {
                 lines[0] = line.substr(0,half);
                 lines[1] = line.substr(half);
             }
-            
+
             if (lines[0].length>57 || lines[1].length>57) {
                 let third = Math.round(line.length/3);
                 let twothird = Math.round(line.length*2/3);
