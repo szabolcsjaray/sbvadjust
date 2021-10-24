@@ -1,4 +1,4 @@
-/* 1.04 */
+/* 1.05 */
 body {
     background-color: #c0c5df;
     overflow: auto;
@@ -213,4 +213,14 @@ p#stopped {
     vertical-align: top;
     position: relative;
     top: 30px;
+}
+
+.screenshot_img {
+    border: solid darkgray 4px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#translationBody {
+    padding: 20px;
 }

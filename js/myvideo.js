@@ -1,4 +1,4 @@
-// 1.06
+// 1.07
 //load the IFrame Player API code asynchronously
 var player;
 var timingBlock = 0;
@@ -20,7 +20,12 @@ function initVideo() {
 function onYouTubeIframeAPIReady() {
     let myFrame = el('videoFrame');
     //let videoId = myFrame.getAttribute('idVid');
-    player = new YT.Player('videoFrame');
+    player = new YT.Player('videoFrame', {
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
 
 }
 
@@ -153,6 +158,39 @@ function addKeyListener() {
     console.log(event.code);
     el('keyInput').value='';
   });
+}
+
+var captRetry = 0;
+
+function getCaptionData(){
+    var tracklist = player.getOption("captions", "tracklist");
+    player.pauseVideo();
+    console.log(tracklist);
+    if (tracklist === undefined ) {
+        captRetry++;
+        if (captRetry<3) {
+            setTimeout(function(){ getCaptionData() }, 1000);
+            return;
+        }
+    }
+    for (let caption in tracklist) {
+        console.log( tracklist[caption].display);
+    }
+    player.stopVideo("captions");
+}
+
+function onPlayerReady(event) {
+    player.loadModule("captions");
+    let data = player.getVideoData();
+    console.log(data );
+    player.mute("captions");
+    player.playVideo("captions");
+    captRetry = 0;
+    setTimeout(function(){ getCaptionData() }, 3000);
+}
+
+function onPlayerStateChange(event) {
+    console.log("Player state changed: " + event.data);
 }
 
 const VIDEO_ADDRESS_TEMPLATE = "http://www.youtube.com/embed/VIDEOID?rel=0&amp;controls=1&amp;hd=1&amp;showinfo=1&amp;enablejsapi=1"
