@@ -1,4 +1,4 @@
-// 1.03
+// 1.04
 const SBV_SPACE = "sbvadjust";
 const ORIG_SBV = "origsbv";
 const SCRIPT = "script";
@@ -37,6 +37,13 @@ function sessionSave(auto = false) {
     }
 }
 
+function setIfNotNull(htmlId, storageId) {
+    let value = localStorage.getItem(storageId);
+    if (value!=null) {
+        el(htmlId).value = value;
+    }
+}
+
 function sessionLoad(auto = false) {
     let ok = auto;
     if (!auto) {
@@ -45,23 +52,25 @@ function sessionLoad(auto = false) {
     if (ok) {
         autoFolder = (auto ? "/auto" : "");
         space = SBV_SPACE + autoFolder;
-        el("origSBV").value = localStorage.getItem(space+"/"+ORIG_SBV);
-        el("script").value = localStorage.getItem(space+"/"+SCRIPT);
-        el("videoID").value = localStorage.getItem(space+"/"+VIDEOLINK);
+        setIfNotNull("origSBV", space+"/"+ORIG_SBV);
+        setIfNotNull("script", space+"/"+SCRIPT);
+        setIfNotNull("videoID", space+"/"+VIDEOLINK);
         let origBlocks = JSON.parse(localStorage.getItem(space+"/"+ORIGBLOCKS));
         let resBlocks = JSON.parse(localStorage.getItem(space+"/"+RESBLOCKS));
         let timings = JSON.parse(localStorage.getItem(space+"/"+TIMINGS));
         //loadOriginal();
         blocks = [];
-        for(let i=0;i<origBlocks.length;i++) {
-            blocks[i] = { "time" : timings[i], "text" : origBlocks[i], "index" : i};
-        }
-        createOrigBlocks();
-        for(let i=0;i<origBlocks.length;i++) {
-            el("rb"+i).value = resBlocks[i];
-        }
+        if (origBlocks!=null) {
+            for(let i=0;i<origBlocks.length;i++) {
+                blocks[i] = { "time" : timings[i], "text" : origBlocks[i], "index" : i};
+            }
+            createOrigBlocks();
+            for(let i=0;i<origBlocks.length;i++) {
+                el("rb"+i).value = resBlocks[i];
+            }
 
-        refreshBlocksFromScreen();
+            refreshBlocksFromScreen();
+        }
         refreshResultSBV();
         SBVloaded = true;
     }

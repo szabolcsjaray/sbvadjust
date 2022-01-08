@@ -177,6 +177,7 @@ function getCaptionData(){
         console.log( tracklist[caption].display);
     }
     player.stopVideo("captions");
+    player.unMute();
 }
 
 function onPlayerReady(event) {
